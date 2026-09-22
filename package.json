@@ -1,0 +1,17 @@
+{
+  "name": "solnechnaya-dolina",
+  "version": "1.0.0",
+  "description": "Isometric Farm Game by IP Temnikov I N",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^7.6.0",
+    "mongoose": "^8.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

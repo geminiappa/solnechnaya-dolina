@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Солнечная Долина — ИП Темников И Н</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #172c0b;
+    }
+
+    .screen-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .screen-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Главное меню */
+    #main-menu-screen {
+      background: linear-gradient(180deg, rgba(15,35,12,0.85) 0%, rgba(8,18,6,0.98) 100%),
+                  radial-gradient(circle at 50% 30%, #43a047 0%, #1b380f 100%);
+    }
+    .menu-card {
+      background: #fbf5e6;
+      border: 6px solid #8d6e63;
+      border-radius: 32px;
+      padding: 28px 32px 20px 32px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.65), inset 0 3px 0 #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+    .game-logo-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: #4e342e;
+      text-shadow: 2px 2px 0 #ffe082;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+    .menu-btn {
+      width: 100%;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 900;
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.25), 0 6px 12px rgba(0,0,0,0.2);
+      transition: transform 0.1s, filter 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .menu-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .menu-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+    .btn-play { background: linear-gradient(180deg, #4caf50, #2e7d32); font-size: 20px; padding: 14px; }
+    .btn-secondary { background: linear-gradient(180deg, #ff9800, #e65100); }
+    .btn-settings { background: linear-gradient(180deg, #9c27b0, #6a1b9a); }
+    .btn-dev { background: linear-gradient(180deg, #42a5f5, #1565c0); font-size: 14px; padding: 10px; }
+    .menu-copyright { margin-top: 4px; font-size: 12px; font-weight: 800; color: #8d6e63; letter-spacing: 0.5px; }
+
+    /* Ввод ника */
+    #nickname-screen { background: rgba(13, 20, 10, 0.9); backdrop-filter: blur(5px); z-index: 1050; }
+    .nick-input {
+      width: 100%; padding: 14px 18px; font-size: 18px; font-weight: 800;
+      border: 3px solid #ffb300; border-radius: 16px; background: #fff;
+      color: #3e2723; text-align: center; outline: none;
+    }
+
+    /* Туториал */
+    #tutorial-screen { background: rgba(13, 20, 10, 0.85); backdrop-filter: blur(4px); z-index: 900; }
+    .tut-card {
+      background: #fff8e1; border: 6px solid #8d6e63; border-radius: 28px;
+      padding: 24px; width: 90%; max-width: 440px; box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;
+    }
+    .tut-step-badge {
+      background: #ff5722; color: #fff; font-size: 12px; font-weight: 900;
+      padding: 4px 12px; border-radius: 14px; text-transform: uppercase;
+    }
+    .tut-title { font-size: 22px; font-weight: 900; color: #3e2723; }
+    .tut-desc { font-size: 14px; color: #5d4037; line-height: 1.5; }
+    .tut-graphic-box {
+      width: 80px; height: 80px; background: #ffe0b2; border-radius: 50%;
+      border: 3px solid #ff9800; display: flex; align-items: center; justify-content: center;
+    }
+    .tut-dots { display: flex; gap: 8px; }
+    .tut-dot { width: 10px; height: 10px; border-radius: 50%; background: #d7ccc8; transition: 0.2s; }
+    .tut-dot.active { background: #e65100; width: 24px; border-radius: 8px; }
+
+    #game-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+    #game-canvas:active { cursor: grabbing; }
+    body.building-active #game-canvas { cursor: crosshair !important; }
+
+    /* HUD */
+    .top-bar {
+      position: absolute; top: 14px; left: 14px; right: 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none; z-index: 20;
+    }
+    .profile-pill {
+      background: linear-gradient(180deg, #ffb300, #f57c00);
+      border: 3px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.35);
+      border-radius: 30px; padding: 6px 14px; display: flex;
+      align-items: center; gap: 12px; color: #fff; font-weight: 900; pointer-events: auto;
+    }
+    .avatar-icon-box {
+      width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff;
+      background: #4fc3f7; display: flex; align-items: center; justify-content: center;
+    }
+    .xp-bar-box {
+      width: 100px; height: 12px; background: rgba(0,0,0,0.4); border-radius: 10px;
+      overflow: hidden; border: 1px solid #fff; margin-top: 3px;
+    }
+    .xp-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #76ff03, #00e676); transition: width 0.3s; }
+    .currencies { display: flex; gap: 10px; pointer-events: auto; }
+    .currency-pill {
+      background: #24292e; border: 3px solid #ffc107; border-radius: 25px;
+      color: #fff; padding: 6px 14px; font-weight: 900; font-size: 16px;
+      display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .coin-icon, .gem-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+
+    .esc-hint-btn {
+      background: #37474f; color: #fff; border: 2px solid #fff; border-radius: 20px;
+      padding: 6px 12px; font-weight: 900; font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      pointer-events: auto;
+    }
+    .esc-hint-btn span.badge { background: #ff5722; padding: 1px 6px; border-radius: 8px; font-size: 10px; }
+
+    #build-banner {
+      position: absolute; top: 76px; left: 50%; transform: translateX(-50%);
+      background: rgba(38, 50, 56, 0.95); border: 2px solid #ffb300; color: #fff;
+      padding: 8px 18px; border-radius: 30px; z-index: 50; display: none;
+      align-items: center; gap: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      font-weight: 800; font-size: 13px;
+    }
+    .cancel-build-btn {
+      background: #f44336; border: none; color: #fff; padding: 4px 12px;
+      border-radius: 12px; font-weight: 900; cursor: pointer;
+    }
+
+    .bottom-bar-left { position: absolute; bottom: 20px; left: 20px; display: flex; gap: 12px; z-index: 20; }
+    .bottom-bar { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 20; }
+
+    .hud-btn {
+      width: 68px; height: 68px; border-radius: 50%; border: 4px solid #ffffff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.6);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff; font-weight: 900; font-size: 11px; letter-spacing: 0.3px;
+      transition: transform 0.1s;
+    }
+    .hud-btn svg { width: 28px; height: 28px; margin-bottom: 2px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35)); }
+    .hud-btn:hover { transform: scale(1.08); }
+    .hud-btn:active { transform: scale(0.92); }
+
+    .btn-barn { background: linear-gradient(180deg, #ef5350, #b71c1c); }
+    .btn-orders { background: linear-gradient(180deg, #ab47bc, #4a148c); }
+    .btn-workers { background: linear-gradient(180deg, #26a69a, #004d40); }
+    .btn-shop { background: linear-gradient(180deg, #ffca28, #f57f17); width: 76px; height: 76px; }
+    .btn-shop svg { width: 32px; height: 32px; }
+
+    #radial-bubble {
+      position: absolute; display: none; transform: translate(-50%, -100%);
+      background: #fff8e1; border: 4px solid #8d6e63; border-radius: 28px;
+      padding: 8px 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 30; gap: 10px;
+    }
+    .bubble-item {
+      display: flex; flex-direction: column; align-items: center; background: #fff;
+      border: 2px solid #ffb300; border-radius: 16px; padding: 6px 10px;
+      cursor: pointer; font-size: 11px; font-weight: 800; min-width: 66px; transition: 0.1s;
+    }
+    .bubble-item .crop-preview { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+    .bubble-item .price-row { display: flex; align-items: center; gap: 4px; color: #e65100; font-weight: 900; margin-top: 2px; }
+    .bubble-item .price-row svg { width: 14px; height: 14px; }
+    .bubble-item:hover { background: #ffe082; transform: scale(1.08); }
+
+    /* Модалки */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px); z-index: 1200; display: none;
+      align-items: center; justify-content: center;
+    }
+    .modal-box {
+      width: 94%; max-width: 600px; background: #fff8e1; border: 6px solid #8d6e63;
+      border-radius: 28px; padding: 24px; position: relative; color: #3e2723;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    }
+    .modal-title { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 10px; color: #4e342e; }
+    .modal-close-btn {
+      position: absolute; top: -14px; right: -14px; width: 38px; height: 38px;
+      background: #f44336; border: 3px solid #fff; border-radius: 50%; color: #fff;
+      font-weight: 900; font-size: 18px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .barn-upgrade-banner {
+      background: linear-gradient(135deg, #ffe082, #ffb300);
+      border: 2px solid #f57c00; border-radius: 18px; padding: 12px 16px;
+      margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .upgrade-btn {
+      background: linear-gradient(180deg, #4caf50, #2e7d32); border: none; color: #fff;
+      padding: 8px 16px; border-radius: 14px; font-weight: 900; font-size: 13px; cursor: pointer;
+    }
+
+    .modal-tabs {
+      display: flex; gap: 6px; margin-bottom: 12px; background: rgba(141, 110, 99, 0.15);
+      padding: 4px; border-radius: 16px;
+    }
+    .modal-tab-btn {
+      flex: 1; padding: 8px 4px; border: none; border-radius: 12px;
+      background: transparent; color: #5d4037; font-weight: 800; font-size: 12px;
+      cursor: pointer; transition: 0.15s; text-align: center;
+    }
+    .modal-tab-btn.active { background: #ff9800; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px; max-height: 48vh; overflow-y: auto; padding: 4px;
+    }
+    .card-item {
+      background: #fff; border: 2px solid #d7ccc8; border-radius: 16px;
+      padding: 10px; text-align: center; font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .card-svg-box { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+    .card-btn {
+      width: 100%; padding: 6px; border: none; border-radius: 12px;
+      background: #4caf50; color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; margin-top: 4px;
+    }
+    .card-btn:disabled { background: #b0bec5; cursor: not-allowed; }
+
+    .settings-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 12px 14px;
+      background: #fff; border: 2px solid #d7ccc8; border-radius: 16px; margin-bottom: 10px; font-weight: 800;
+    }
+    .settings-row input[type="range"] { width: 140px; cursor: pointer; }
+    .settings-row input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; }
+
+    .toast-container { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 300; }
+    .toast {
+      background: rgba(33, 33, 33, 0.94); color: #fff; padding: 10px 22px;
+      border-radius: 25px; font-size: 14px; font-weight: 800; border: 2px solid #ffb300;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4); animation: toastFade 2.2s forwards;
+    }
+    @keyframes toastFade {
+      0% { opacity: 0; transform: translateY(-8px); }
+      15%, 80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. ГЛАВНОЕ МЕНЮ -->
+  <div class="screen-overlay" id="main-menu-screen">
+    <div class="menu-card">
+      <div class="game-logo-title">Солнечная<br>Долина</div>
+      <div style="font-size: 13px; color: #6d4c41; margin-bottom: 4px;">Облачное сохранение MongoDB на Render. Прогресс никогда не потеряется!</div>
+      
+      <button class="menu-btn btn-play" id="btn-start-game">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><polygon points="5,3 19,12 5,21" /></svg>
+        <span id="btn-play-text">В ИГРУ</span>
+      </button>
+      <button class="menu-btn btn-secondary" id="btn-menu-workers">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
+        ШТАТ И АГРОНОМЫ
+      </button>
+      <button class="menu-btn btn-settings" id="btn-menu-settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        НАСТРОЙКИ ЗВУКА
+      </button>
+      <button class="menu-btn btn-dev" id="btn-menu-developer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        О РАЗРАБОТЧИКЕ
+      </button>
+
+      <div class="menu-copyright">
+        © ИП Темников И Н. Все права защищены.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ВВОД НИКА -->
+  <div class="screen-overlay screen-hidden" id="nickname-screen">
+    <div class="tut-card">
+      <div class="tut-graphic-box">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="#ff9800"><circle cx="12" cy="8" r="5" fill="#ffa726"/><path d="M3 21v-2a6 6 0 0 1 6-6h6a6 6 0 0 1 6 6v2" fill="#fb8c00"/></svg>
+      </div>
+      <div class="tut-title">Представьтесь, управляющий!</div>
+      <div class="tut-desc">Введите имя руководителя для документов долины:</div>
+      <input type="text" class="nick-input" id="nick-field" maxlength="15" placeholder="Ваш никнейм" value="Фермер">
+      <button class="menu-btn btn-play" id="btn-confirm-nick" style="font-size:16px; padding:12px;">Продолжить</button>
+    </div>
+  </div>
+
+  <!-- 3. ТУТОРИАЛ -->
+  <div class="screen-overlay screen-hidden" id="tutorial-screen">
+    <div class="tut-card">
+      <div class="tut-step-badge" id="tut-badge">Шаг 1 из 3</div>
+      <div class="tut-graphic-box" id="tut-icon-box"></div>
+      <div class="tut-title" id="tut-title">Облачная База Данных</div>
+      <div class="tut-desc" id="tut-desc">Ваш прогресс автоматически синхронизируется с сервером на Render. Стройте ПВЗ, нанимайте Агронома Прохора и развивайте ферму!</div>
+      <div class="tut-dots">
+        <div class="tut-dot active" id="tdot-0"></div>
+        <div class="tut-dot" id="tdot-1"></div>
+        <div class="tut-dot" id="tdot-2"></div>
+      </div>
+      <button class="menu-btn btn-play" id="btn-tut-next" style="font-size:16px; padding:12px;">Далее</button>
+    </div>
+  </div>
+
+  <!-- БАННЕР РЕЖИМА СТРОИТЕЛЬСТВА -->
+  <div id="build-banner">
+    <span id="build-banner-text">Режим стройки: выберите клетку на поле</span>
+    <button class="cancel-build-btn" onclick="cancelPlacement()">Отмена (Esc)</button>
+  </div>
+
+  <!-- 4. ХОЛСТ -->
+  <canvas id="game-canvas"></canvas>
+
+  <div class="top-bar">
+    <div class="profile-pill">
+      <div class="avatar-icon-box">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#ffffff"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+      </div>
+      <div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span id="hud-player-name">Фермер</span>
+          <span style="background:#ff3d00; border-radius:10px; padding:1px 6px; font-size:12px;" id="hud-level">Ур. 1</span>
+        </div>
+        <div class="xp-bar-box"><div class="xp-bar-fill" id="hud-xp-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="currencies">
+      <div class="currency-pill">
+        <div class="coin-icon" id="coin-svg-box"></div>
+        <span id="hud-coins">650</span>
+      </div>
+      <div class="currency-pill">
+        <div class="gem-icon" id="gem-svg-box"></div>
+        <span id="hud-gems">35</span>
+      </div>
+      <div class="esc-hint-btn" onclick="togglePauseMenu()">
+        <span>Меню</span>
+        <span class="badge">Esc</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="radial-bubble"></div>
+
+  <!-- НИЖНЯЯ ПАНЕЛЬ -->
+  <div class="bottom-bar-left">
+    <div class="hud-btn btn-barn" id="btn-open-barn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 8l9-5 9 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" fill="#ffe0b2" stroke="#fff" stroke-width="2"/><polyline points="3 8 12 13 21 8" stroke="#fff" stroke-width="2"/><line x1="12" y1="13" x2="12" y2="21" stroke="#fff" stroke-width="2"/></svg>
+      <div>Амбар</div>
+    </div>
+    <div class="hud-btn btn-orders" id="btn-open-orders">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#ede7f6" stroke="#fff" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="#fff" stroke-width="2"/><line x1="8" y1="13" x2="16" y2="13" stroke="#512da8" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="17" x2="14" y2="17" stroke="#512da8" stroke-width="2" stroke-linecap="round"/></svg>
+      <div>Заказы</div>
+    </div>
+    <div class="hud-btn btn-workers" id="btn-hud-workers">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a4 4 0 0 1 4 4v1H8V6a4 4 0 0 1 4-4z" fill="#ffe082"/><path d="M5 9h14a2 2 0 0 1 2 2v2H3v-2a2 2 0 0 1 2-2z" fill="#ffb300" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#ffccbc"/><path d="M6 22v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3" fill="#26a69a" stroke="#fff" stroke-width="2"/></svg>
+      <div>Штат</div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="hud-btn btn-shop" id="btn-open-shop">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="20" r="2" fill="#fff"/><circle cx="18" cy="20" r="2" fill="#fff"/><path d="M1 1h4l2.6 12.5a2 2 0 0 0 2 1.5h9.4a2 2 0 0 0 2-1.6L23 5H6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>Стройка</div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- МОДАЛЬНЫЕ ОКНА -->
+  <div class="modal-overlay" id="modal-barn">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-barn">✕</div>
+      <div class="modal-title">Амбар Долины (<span id="barn-used-hud">0</span>/<span id="barn-cap-hud">60</span>)</div>
+      
+      <div class="barn-upgrade-banner">
+        <div>
+          <div style="font-weight: 900; font-size: 14px; color: #4e342e;">Уровень склада: <span id="barn-level-txt">1</span></div>
+          <div style="font-size: 12px; color: #5d4037;">Прибавка: <b>+50 мест</b> к вместимости</div>
+        </div>
+        <button class="upgrade-btn" onclick="upgradeBarnStorage()">
+          Апгрейд (<span id="barn-up-cost">250</span> 🪙)
+        </button>
+      </div>
+
+      <div class="cards-grid" id="barn-items-grid"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-orders">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-orders">✕</div>
+      <div class="modal-title">📦 ПВЗ и Доставка Заказов</div>
+      <div style="font-size: 12px; color: #5d4037; text-align: center; margin-bottom: 8px;">
+        Здесь формируются отправления для жителей и магазинов. Товары не залёживаются на складе!
+      </div>
+      <div class="cards-grid" id="orders-items-grid"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-settings">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-settings">✕</div>
+      <div class="modal-title">Настройки звука и музыки</div>
+      <div class="settings-row">
+        <span>🎵 Фоновая музыка</span>
+        <input type="checkbox" id="chk-music" checked onchange="toggleMusic(this.checked)">
+      </div>
+      <div class="settings-row">
+        <span>Громкость музыки</span>
+        <input type="range" id="rng-music" min="0" max="1" step="0.05" value="0.4" oninput="setMusicVol(this.value)">
+      </div>
+      <div class="settings-row">
+        <span>🔔 Звуковые эффекты</span>
+        <input type="checkbox" id="chk-sfx" checked onchange="toggleSFX(this.checked)">
+      </div>
+      <div class="settings-row">
+        <span>Громкость эффектов</span>
+        <input type="range" id="rng-sfx" min="0" max="1" step="0.05" value="0.7" oninput="setSFXVol(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-shop">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-shop">✕</div>
+      <div class="modal-title">Строительство поселения</div>
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" onclick="switchShopTab('production')">Производство</button>
+        <button class="modal-tab-btn" onclick="switchShopTab('commerce')">Торговля, ПВЗ & Склад</button>
+        <button class="modal-tab-btn" onclick="switchShopTab('infra')">Поля & Декор</button>
+      </div>
+      <div class="cards-grid" id="shop-items-grid"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-workers">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-workers">✕</div>
+      <div class="modal-title">Штат сотрудников и Агрономы</div>
+      <div class="cards-grid" id="workers-grid"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-dev">
+    <div class="modal-box">
+      <div class="modal-close-btn" data-close="modal-dev">✕</div>
+      <div class="modal-title">Компания разработчик</div>
+      <div style="font-size: 15px; color: #4e342e; line-height: 1.6; text-align: center; margin: 10px 0;">
+        <b>ИП Темников И Н</b><br>
+        Все права защищены.<br><br>
+        Официальная разработка браузерной изометрической стратегии «Солнечная Долина». Облачное сохранение в MongoDB на сервере Render, ПВЗ, агроном Прохор и 60 FPS графика.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       SVG ИКОНКИ
+       ========================================================================== */
+    const SVG_COIN = `<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="10" fill="#ffb300" stroke="#ff8f00" stroke-width="1.8"/><circle cx="12" cy="12" r="7.5" fill="#ffca28"/><circle cx="12" cy="12" r="5.5" fill="#ffa000"/><text x="12" y="15.5" font-size="10" font-weight="900" fill="#fff" text-anchor="middle" font-family="Arial">C</text></svg>`;
+    const SVG_GEM = `<svg viewBox="0 0 24 24" width="100%" height="100%"><polygon points="6,3 18,3 22,9 12,22 2,9" fill="#00e5ff" stroke="#00b0ff" stroke-width="1.5"/><polygon points="6,3 12,9 18,3" fill="#80d8ff"/><polyline points="2,9 12,22 22,9" stroke="#fff" stroke-width="1" fill="none"/></svg>`;
+    const SVG_WHEAT = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M18 34 V12" stroke="#d49419" stroke-width="2" stroke-linecap="round"/><ellipse cx="18" cy="8" rx="2.8" ry="4.5" fill="#ffd54f" stroke="#ffb300" stroke-width="0.8"/><ellipse cx="15" cy="12" rx="2.5" ry="4" fill="#ffca28" stroke="#ff9800" stroke-width="0.8" transform="rotate(-18 15 12)"/><ellipse cx="21" cy="12" rx="2.5" ry="4" fill="#ffca28" stroke="#ff9800" stroke-width="0.8" transform="rotate(18 21 12)"/></svg>`;
+    const SVG_BEETROOT = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M18 26 Q12 18 10 10" stroke="#c2185b" stroke-width="1.8" fill="none"/><path d="M10 10 C7 6 12 3 15 7 Z" fill="#8bc34a"/><path d="M18 34 C17 31 12 29 12 24 C12 19 24 19 24 24 C24 29 19 31 18 34 Z" fill="#880e4f"/></svg>`;
+    const SVG_CORN = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M18 32 C12 28 8 18 12 10 Z" fill="#689f38"/><ellipse cx="18" cy="18" rx="6" ry="11" fill="#fdd835" stroke="#fbc02d" stroke-width="1"/></svg>`;
+    const SVG_STRAWBERRY = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M18 32 C13 32 8 24 9 16 C10 10 16 9 18 9 C20 9 26 10 27 16 C28 24 23 32 18 32 Z" fill="#e53935"/><path d="M13 9 Q18 4 23 9 Q18 11 13 9 Z" fill="#43a047"/></svg>`;
+    const SVG_PUMPKIN = `<svg viewBox="0 0 36 36" width="100%" height="100%"><ellipse cx="18" cy="21" rx="14" ry="11" fill="#f57c00" stroke="#e65100" stroke-width="1.2"/><ellipse cx="18" cy="21" rx="7" ry="11.5" fill="#ffa726"/></svg>`;
+    const SVG_FLOUR = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M9 12 h18 l-2.5 18 h-13 Z" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.8"/><circle cx="18" cy="21" r="4.5" fill="#ffe082"/></svg>`;
+    const SVG_BREAD = `<svg viewBox="0 0 36 36" width="100%" height="100%"><ellipse cx="18" cy="19" rx="14" ry="9" fill="#d7a15c" stroke="#8d5b24" stroke-width="1.8"/></svg>`;
+    const SVG_EGG = `<svg viewBox="0 0 36 36" width="100%" height="100%"><ellipse cx="18" cy="19" rx="9" ry="12" fill="#fff8e1" stroke="#ffe082" stroke-width="1.8"/></svg>`;
+
+    document.getElementById('coin-svg-box').innerHTML = SVG_COIN;
+    document.getElementById('gem-svg-box').innerHTML = SVG_GEM;
+
+    /* ==========================================================================
+       ЗВУКОВОЙ ДВИЖОК + МУЗЫКА
+       ========================================================================== */
+    class FarmAudioSystem {
+      constructor() {
+        this.ctx = null;
+        this.musicGain = null;
+        this.sfxGain = null;
+        this.musicEnabled = true;
+        this.sfxEnabled = true;
+        this.musicTimer = null;
+        this.musicNoteIdx = 0;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+          this.musicGain = this.ctx.createGain();
+          this.sfxGain = this.ctx.createGain();
+          this.musicGain.gain.value = 0.35;
+          this.sfxGain.gain.value = 0.7;
+          this.musicGain.connect(this.ctx.destination);
+          this.sfxGain.connect(this.ctx.destination);
+          this.startMusicLoop();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playPop() {
+        if (!this.sfxEnabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(740, this.ctx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        osc.connect(g);
+        g.connect(this.sfxGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+      playCoins() {
+        if (!this.sfxEnabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        [0, 0.08, 0.16].forEach((delay, i) => {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(980 + i * 260, t + delay);
+          g.gain.setValueAtTime(0.25, t + delay);
+          g.gain.exponentialRampToValueAtTime(0.01, t + delay + 0.14);
+          osc.connect(g);
+          g.connect(this.sfxGain);
+          osc.start(t + delay);
+          osc.stop(t + delay + 0.15);
+        });
+      }
+      playFanfare() {
+        if (!this.sfxEnabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.12);
+          g.gain.setValueAtTime(0.28, t + idx * 0.12);
+          g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.12 + 0.38);
+          osc.connect(g);
+          g.connect(this.sfxGain);
+          osc.start(t + idx * 0.12);
+          osc.stop(t + idx * 0.12 + 0.4);
+        });
+      }
+      startMusicLoop() {
+        const notes = [261.63, 329.63, 392.00, 523.25, 329.63, 392.00, 440.00, 392.00, 293.66, 369.99, 440.00, 587.33];
+        this.musicTimer = setInterval(() => {
+          if (!this.musicEnabled || !this.ctx || this.ctx.state === 'suspended') return;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(notes[this.musicNoteIdx % notes.length], this.ctx.currentTime);
+          this.musicNoteIdx++;
+          g.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.55);
+          osc.connect(g);
+          g.connect(this.musicGain);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.58);
+        }, 600);
+      }
+    }
+    const audioSys = new FarmAudioSystem();
+
+    function toggleMusic(enabled) { audioSys.init(); audioSys.musicEnabled = enabled; saveGameData(); }
+    function setMusicVol(val) { audioSys.init(); if (audioSys.musicGain) audioSys.musicGain.gain.value = parseFloat(val); saveGameData(); }
+    function toggleSFX(enabled) { audioSys.init(); audioSys.sfxEnabled = enabled; saveGameData(); }
+    function setSFXVol(val) { audioSys.init(); if (audioSys.sfxGain) audioSys.sfxGain.gain.value = parseFloat(val); saveGameData(); }
+
+    /* ==========================================================================
+       ЭКОНОМИКА, КУЛЬТУРЫ И ПОДРАЗДЕЛЕНИЯ
+       ========================================================================== */
+    const CROPS = {
+      wheat:      { name: 'Пшеница', svg: SVG_WHEAT, seedCost: 2, sellPrice: 4, growTime: 5, xp: 2 },
+      beetroot:   { name: 'Свекла', svg: SVG_BEETROOT, seedCost: 5, sellPrice: 11, growTime: 10, xp: 4 },
+      corn:       { name: 'Кукуруза', svg: SVG_CORN, seedCost: 12, sellPrice: 32, growTime: 15, xp: 8 },
+      strawberry: { name: 'Клубника', svg: SVG_STRAWBERRY, seedCost: 28, sellPrice: 75, growTime: 28, xp: 18 },
+      pumpkin:    { name: 'Золотая Тыква', svg: SVG_PUMPKIN, seedCost: 65, sellPrice: 190, growTime: 45, xp: 45 }
+    };
+
+    const PRODUCTS = {
+      flour: { name: 'Мука', svg: SVG_FLOUR, sellPrice: 22, time: 10, ingredients: { wheat: 2 }, xp: 6 },
+      bread: { name: 'Хлеб', svg: SVG_BREAD, sellPrice: 55, time: 20, ingredients: { flour: 2 }, xp: 14 },
+      egg:   { name: 'Яйцо', svg: SVG_EGG, sellPrice: 16, time: 15, ingredients: { wheat: 1 }, xp: 5 }
+    };
+
+    const BUILD_CATALOG = {
+      bakery_factory: { category: 'production', name: 'Пекарня-кухня', cost: 380, desc: 'Повар выпекает ароматный хлеб из муки.' },
+      mill:           { category: 'production', name: 'Каменная Мельница', cost: 280, desc: 'Помол колосьев в белую муку.' },
+      coop_yard:      { category: 'production', name: 'Курятник с выгулом', cost: 200, desc: 'Производит свежие домашние яйца.' },
+      pvz_point:      { category: 'commerce',   name: 'Пункт выдачи (ПВЗ)', cost: 320, desc: 'ПВЗ для выдачи заказов клиентам с быстрой отгрузкой!' },
+      market_shop:    { category: 'commerce',   name: 'Магазин-Универмаг', cost: 350, desc: 'Автоматически отгружает товары через грузчиков!' },
+      red_barn:       { category: 'commerce',   name: 'Большой Красный Амбар', cost: 450, desc: '+40 единиц к вместимости склада.' },
+      plot:           { category: 'infra',      name: 'Грядка', cost: 40, desc: 'Для посадки культур долины.' },
+      stone_path:     { category: 'infra',      name: 'Каменная дорожка', cost: 10, desc: 'Тропинка для персонала.' },
+      fence:          { category: 'infra',      name: 'Деревянный забор', cost: 15, desc: 'Ограда для полей.' },
+      bush:           { category: 'infra',      name: 'Цветущий куст', cost: 25, desc: 'Декоративная растительность долины.' }
+    };
+
+    const WORKERS_CATALOG = {
+      agronomist: {
+        id: 'agronomist',
+        name: 'Прохор (Главный Агроном)',
+        role: 'Управление посевами и оборотом',
+        desc: 'Сам определяет, что сажать на каждой грядке, и сбрасывает излишки на продажу, чтобы амбар не забивался!',
+        cost: 350,
+        shirtColor: '#4e342e',
+        hatColor: '#3e2723'
+      },
+      builder: {
+        id: 'builder',
+        name: 'Кузьма (Строитель полей)',
+        role: 'Расширение полей в ширину',
+        desc: 'Копает новые грядки рядом с уже вспаханными полями.',
+        cost: 300,
+        shirtColor: '#795548',
+        hatColor: '#ff9800'
+      },
+      planter: {
+        id: 'planter',
+        name: 'Митя (Садовод-исполнитель)',
+        role: 'Посев по указанию Агронома',
+        desc: 'Слушает команды Прохора и сразу засевает нужную грядку.',
+        cost: 220,
+        shirtColor: '#66bb6a',
+        hatColor: '#fbc02d'
+      },
+      harvester: {
+        id: 'harvester',
+        name: 'Ваня (Жнец)',
+        role: 'Сбор урожая',
+        desc: 'Собирает все спелые культуры прямо в амбар.',
+        cost: 180,
+        shirtColor: '#42a5f5',
+        hatColor: '#fbc02d'
+      },
+      loader: {
+        id: 'loader',
+        name: 'Борис (Грузчик ПВЗ)',
+        role: 'Разгрузка склада в ПВЗ',
+        desc: 'Носит товары из амбара в ПВЗ и магазин, не давая складу переполняться.',
+        cost: 250,
+        shirtColor: '#ff7043',
+        hatColor: '#d32f2f'
+      },
+      driver: {
+        id: 'driver',
+        name: 'Илья (Водитель фуры)',
+        role: 'Авто-отгрузка заказов',
+        desc: 'Развозит посылки из ПВЗ и оптовые заказы в город.',
+        cost: 320,
+        shirtColor: '#3f51b5',
+        hatColor: '#263238'
+      }
+    };
+
+    let activeWorkers = [];
+
+    let gameState = {
+      playerId: localStorage.getItem('sd_player_id') || 'player_' + Math.random().toString(36).substr(2, 9),
+      playerName: 'Фермер',
+      coins: 650,
+      gems: 35,
+      xp: 0,
+      level: 1,
+      barnMax: 60,
+      barnLevel: 1,
+      barnUpgradeCost: 250,
+      inventory: { wheat: 14, beetroot: 6, corn: 4, flour: 2 },
+      hiredWorkers: {},
+      orders: [
+        { id: 1, name: 'ПВЗ: Посылка в город', req: { wheat: 4, beetroot: 2 }, rewardCoins: 50, rewardXp: 20 },
+        { id: 2, name: 'ПВЗ: Экспресс-заказ', req: { corn: 3, strawberry: 2 }, rewardCoins: 175, rewardXp: 50 },
+        { id: 3, name: 'ПВЗ: Крупный опт', req: { pumpkin: 2, flour: 2 }, rewardCoins: 400, rewardXp: 95 }
+      ]
+    };
+    localStorage.setItem('sd_player_id', gameState.playerId);
+
+    const MAP_SIZE = 14;
+    const TILE_W = 104;
+    const TILE_H = 52;
+    let camera = { x: 0, y: 0, zoom: 1.0 };
+
+    let buildings = [
+      { id: 'b_p1', type: 'plot', x: 4, y: 4, crop: 'wheat', plantTime: Date.now() - 4000, ready: false },
+      { id: 'b_p2', type: 'plot', x: 5, y: 4, crop: 'corn', plantTime: Date.now() - 10000, ready: false },
+      { id: 'b_p3', type: 'plot', x: 4, y: 5, crop: 'wheat', plantTime: Date.now() - 4000, ready: false },
+      { id: 'b_p4', type: 'plot', x: 5, y: 5, crop: 'beetroot', plantTime: Date.now() - 3000, ready: false },
+      { id: 'b_p5', type: 'plot', x: 4, y: 6, crop: 'strawberry', plantTime: Date.now() - 20000, ready: false },
+      { id: 'b_p6', type: 'plot', x: 5, y: 6, crop: 'pumpkin', plantTime: Date.now() - 35000, ready: false },
+      { id: 'b_mill', type: 'mill', x: 8, y: 3, production: null, endTime: 0, bladeAngle: 0 },
+      { id: 'b_barn_build', type: 'red_barn', x: 8, y: 6 },
+      { id: 'b_coop', type: 'coop_yard', x: 3, y: 8, production: null, endTime: 0 },
+      { id: 'b_pvz', type: 'pvz_point', x: 9, y: 8 }
+    ];
+
+    let scenery = [
+      { type: 'water', x: 12, y: 0 }, { type: 'water', x: 12, y: 1 }, { type: 'water', x: 12, y: 2 },
+      { type: 'water', x: 12, y: 3 }, { type: 'water', x: 12, y: 4 }, { type: 'water', x: 11, y: 1 },
+      { type: 'cliff', x: 1, y: 1 }, { type: 'cliff', x: 11, y: 8 },
+      { type: 'stone_path', x: 6, y: 4 }, { type: 'stone_path', x: 6, y: 5 }, { type: 'stone_path', x: 6, y: 6 },
+      { type: 'stone_path', x: 7, y: 6 }, { type: 'stone_path', x: 8, y: 7 },
+      { type: 'fence', x: 3, y: 4 }, { type: 'fence', x: 3, y: 5 },
+      { type: 'bush', x: 2, y: 3, flower: '#e91e63' }, { type: 'bush', x: 7, y: 2, flower: '#ffeb3b' },
+      { type: 'barrel', x: 7, y: 4 }, { type: 'flowers', x: 3, y: 3 }
+    ];
+
+    /* ==========================================================================
+       ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ С MONGODB (СЕРВЕР EXPRESS)
+       ========================================================================== */
+    async function saveGameData() {
+      try {
+        const payload = {
+          playerId: gameState.playerId,
+          data: {
+            gameState,
+            buildings,
+            scenery,
+            musicEnabled: audioSys.musicEnabled,
+            sfxEnabled: audioSys.sfxEnabled,
+            isGameStarted
+          }
+        };
+        // Отправка на бэкенд
+        await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        // Резерв в localStorage на случай офлайн-режима
+        localStorage.setItem('sd_offline_backup', JSON.stringify(gameState));
+      }
+    }
+
+    async function loadGameData() {
+      try {
+        const res = await fetch(`/api/save/${gameState.playerId}`);
+        if (!res.ok) return false;
+        const data = await res.json();
+        if (data.gameState) Object.assign(gameState, data.gameState);
+        if (data.buildings && Array.isArray(data.buildings)) buildings = data.buildings;
+        if (data.scenery && Array.isArray(data.scenery)) scenery = data.scenery;
+
+        if (typeof data.musicEnabled === 'boolean') {
+          audioSys.musicEnabled = data.musicEnabled;
+          document.getElementById('chk-music').checked = data.musicEnabled;
+        }
+        if (typeof data.sfxEnabled === 'boolean') {
+          audioSys.sfxEnabled = data.sfxEnabled;
+          document.getElementById('chk-sfx').checked = data.sfxEnabled;
+        }
+        if (data.isGameStarted) {
+          isGameStarted = true;
+          document.getElementById('btn-play-text').innerText = 'ПРОДОЛЖИТЬ';
+        }
+
+        activeWorkers.length = 0;
+        for (const workerId in gameState.hiredWorkers) {
+          if (gameState.hiredWorkers[workerId] && WORKERS_CATALOG[workerId]) {
+            const w = WORKERS_CATALOG[workerId];
+            activeWorkers.push({
+              id: workerId,
+              name: w.name.split(' ')[0],
+              role: workerId,
+              x: 5 + (activeWorkers.length * 0.9),
+              y: 5 + (activeWorkers.length * 0.6),
+              shirtColor: w.shirtColor,
+              hatColor: w.hatColor,
+              animOffset: Math.random() * 10,
+              working: false,
+              isMoving: false,
+              walkTime: 0,
+              lastAction: 0
+            });
+          }
+        }
+        return true;
+      } catch (e) {
+        console.warn('Сервер недоступен, работаем с локальным кэшем');
+        return false;
+      }
+    }
+
+    setInterval(saveGameData, 4000);
+
+    /* ==========================================================================
+       ХОЛСТ И ПРОЕКЦИЯ
+       ========================================================================== */
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      camera.x = canvas.width / 2;
+      camera.y = canvas.height / 4;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function gridToScreen(gx, gy) {
+      return {
+        x: camera.x + (gx - gy) * (TILE_W / 2) * camera.zoom,
+        y: camera.y + (gx + gy) * (TILE_H / 2) * camera.zoom
+      };
+    }
+
+    function screenToGrid(sx, sy) {
+      const wx = (sx - camera.x) / camera.zoom;
+      const wy = (sy - camera.y) / camera.zoom;
+      return {
+        x: Math.floor((wx / (TILE_W / 2) + wy / (TILE_H / 2)) / 2),
+        y: Math.floor((wy / (TILE_H / 2) - wx / (TILE_W / 2)) / 2)
+      };
+    }
+
+    function drawGrassTile(gx, gy) {
+      const p = gridToScreen(gx, gy);
+      const hw = (TILE_W / 2) * camera.zoom;
+      const hh = (TILE_H / 2) * camera.zoom;
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + hw, p.y + hh);
+      ctx.lineTo(p.x, p.y + hh * 2);
+      ctx.lineTo(p.x - hw, p.y + hh);
+      ctx.closePath();
+
+      const baseGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + hh * 2);
+      baseGrad.addColorStop(0, (gx + gy) % 2 === 0 ? '#7cb342' : '#689f38');
+      baseGrad.addColorStop(1, '#558b2f');
+      ctx.fillStyle = baseGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#4e7d23';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      if ((gx * 11 + gy * 7) % 5 === 0) {
+        ctx.fillStyle = '#aed581';
+        ctx.fillRect(p.x - 2 * camera.zoom, p.y + hh - 3 * camera.zoom, 4 * camera.zoom, 2 * camera.zoom);
+      }
+    }
+
+    function drawWaterTile(gx, gy) {
+      const p = gridToScreen(gx, gy);
+      const hw = (TILE_W / 2) * camera.zoom;
+      const hh = (TILE_H / 2) * camera.zoom;
+      const s = camera.zoom;
+      const time = Date.now() / 450 + (gx + gy);
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + hw, p.y + hh);
+      ctx.lineTo(p.x, p.y + hh * 2);
+      ctx.lineTo(p.x - hw, p.y + hh);
+      ctx.closePath();
+
+      const waterGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + hh * 2);
+      waterGrad.addColorStop(0, '#1976d2');
+      waterGrad.addColorStop(0.5, '#0288d1');
+      waterGrad.addColorStop(1, '#0097a7');
+      ctx.fillStyle = waterGrad;
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1.2 * s;
+      for (let i = 0; i < 4; i++) {
+        const waveY = p.y + (hh * 0.4) + (i * 9 * s);
+        const waveX = p.x + Math.sin(time + i) * 6 * s;
+        ctx.beginPath();
+        ctx.moveTo(waveX - 12 * s, waveY);
+        ctx.bezierCurveTo(waveX - 4 * s, waveY - 2 * s, waveX + 4 * s, waveY + 2 * s, waveX + 12 * s, waveY);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#0277bd';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    /* ==========================================================================
+       60 FPS ПЕРСОНАЖИ
+       ========================================================================== */
+    function drawDetailedWorker(w, dt) {
+      w.walkTime = (w.walkTime || 0) + dt * (w.isMoving ? 9 : 3);
+      const walkBounce = Math.sin(w.walkTime) * 2.5 * camera.zoom;
+      const legSwing = Math.cos(w.walkTime) * 3 * camera.zoom;
+      const bend = w.working ? 6 * camera.zoom : 0;
+      const pos = gridToScreen(w.x, w.y);
+      const s = camera.zoom;
+
+      ctx.beginPath();
+      ctx.ellipse(pos.x, pos.y + 4 * s, 10 * s, 5 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fill();
+
+      ctx.fillStyle = '#37474f';
+      ctx.fillRect(pos.x - 7 * s, pos.y - 4 * s + legSwing, 5 * s, 6 * s);
+      ctx.fillRect(pos.x + 2 * s, pos.y - 4 * s - legSwing, 5 * s, 6 * s);
+
+      ctx.fillStyle = w.role === 'agronomist' ? '#3e2723' : (w.role === 'loader' ? '#455a64' : '#212121');
+      ctx.fillRect(pos.x - 6 * s, pos.y - 16 * s + bend + walkBounce * 0.4, 12 * s, 14 * s);
+
+      ctx.fillStyle = w.shirtColor || '#90caf9';
+      ctx.fillRect(pos.x - 7 * s, pos.y - 25 * s + bend, 14 * s, 10 * s);
+
+      ctx.fillStyle = '#ffccbc';
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y - 27 * s + bend, 5 * s, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = w.hatColor || '#fbc02d';
+      if (w.role === 'agronomist') {
+        ctx.fillRect(pos.x - 7 * s, pos.y - 33 * s + bend, 14 * s, 4 * s);
+        ctx.fillRect(pos.x - 5 * s, pos.y - 36 * s + bend, 10 * s, 4 * s);
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(pos.x, pos.y - 30 * s + bend, 12 * s, 4.5 * s, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(pos.x - 6 * s, pos.y - 30 * s + bend);
+        ctx.lineTo(pos.x - 4 * s, pos.y - 38 * s + bend);
+        ctx.lineTo(pos.x + 4 * s, pos.y - 38 * s + bend);
+        ctx.lineTo(pos.x + 6 * s, pos.y - 30 * s + bend);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${Math.max(10, Math.floor(11 * s))}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
+      ctx.fillText(w.name, pos.x, pos.y - 42 * s + bend);
+      ctx.shadowBlur = 0;
+    }
+
+    function updateWorkersAutomation(dt) {
+      const now = Date.now();
+      const existingPlots = buildings.filter(b => b.type === 'plot');
+      const hasAgronomist = !!gameState.hiredWorkers['agronomist'];
+
+      let cropToAssign = 'wheat';
+      if ((gameState.inventory.wheat || 0) >= 8) {
+        cropToAssign = (gameState.coins >= 65) ? 'pumpkin' : 'corn';
+      }
+
+      activeWorkers.forEach(w => {
+        if (w.role === 'agronomist') {
+          w.isMoving = true;
+          w.x += Math.sin(now / 2200) * 0.015;
+          w.y += Math.cos(now / 2500) * 0.015;
+
+          if (!w.lastAction || now - w.lastAction > 3500) {
+            w.lastAction = now;
+            if (getBarnCount() > gameState.barnMax * 0.75) {
+              for (const k in gameState.inventory) {
+                if (gameState.inventory[k] > 4) {
+                  sellItem(k, 3);
+                  showToast(`Прохор отправил излишки в оборот: продано 3 шт. ${CROPS[k] ? CROPS[k].name : k}!`);
+                  break;
+                }
+              }
+            }
+          }
+        } else if (w.role === 'planter') {
+          const emptyPlot = existingPlots.find(b => !b.crop);
+          if (emptyPlot) {
+            const tx = emptyPlot.x + 0.5;
+            const ty = emptyPlot.y + 0.5;
+            w.x += (tx - w.x) * (2.0 * dt);
+            w.y += (ty - w.y) * (2.0 * dt);
+            w.isMoving = true;
+            if (Math.hypot(tx - w.x, ty - w.y) < 0.25) {
+              w.working = true;
+              w.isMoving = false;
+              const seed = hasAgronomist ? cropToAssign : 'wheat';
+              if (gameState.coins >= CROPS[seed].seedCost) {
+                gameState.coins -= CROPS[seed].seedCost;
+                emptyPlot.crop = seed;
+                emptyPlot.plantTime = now;
+                emptyPlot.ready = false;
+                audioSys.playPop();
+                updateUI();
+                saveGameData();
+              }
+            } else {
+              w.working = false;
+            }
+          } else {
+            w.isMoving = false;
+            w.working = false;
+          }
+        } else if (w.role === 'harvester') {
+          const readyPlot = existingPlots.find(b => b.ready);
+          if (readyPlot) {
+            const tx = readyPlot.x + 0.5;
+            const ty = readyPlot.y + 0.5;
+            w.x += (tx - w.x) * (2.0 * dt);
+            w.y += (ty - w.y) * (2.0 * dt);
+            w.isMoving = true;
+            if (Math.hypot(tx - w.x, ty - w.y) < 0.25) {
+              w.working = true;
+              w.isMoving = false;
+              if (getBarnCount() < gameState.barnMax) {
+                harvestPlot(readyPlot, true);
+              }
+            } else {
+              w.working = false;
+            }
+          } else {
+            w.isMoving = false;
+            w.working = false;
+          }
+        } else if (w.role === 'builder') {
+          if (!w.lastAction || now - w.lastAction > 5500) {
+            w.lastAction = now;
+            if (gameState.coins >= 50 && existingPlots.length < 24) {
+              let candidate = null;
+              const neighborOffsets = [{ dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 0, dy: -1 }];
+              for (const p of existingPlots) {
+                for (const off of neighborOffsets) {
+                  const testX = p.x + off.dx;
+                  const testY = p.y + off.dy;
+                  if (!isCellOccupied(testX, testY) && testX >= 1 && testX < MAP_SIZE - 2 && testY >= 1 && testY < MAP_SIZE - 2) {
+                    candidate = { x: testX, y: testY };
+                    break;
+                  }
+                }
+                if (candidate) break;
+              }
+
+              if (candidate) {
+                w.x = candidate.x + 0.5;
+                w.y = candidate.y + 0.5;
+                buildings.push({
+                  id: 'b_p_' + Date.now(),
+                  type: 'plot',
+                  x: candidate.x,
+                  y: candidate.y,
+                  crop: null,
+                  plantTime: 0,
+                  ready: false
+                });
+                gameState.coins -= 50;
+                audioSys.playPop();
+                showToast('Кузьма расширил поле: новая грядка в ряду!');
+                updateUI();
+                saveGameData();
+              }
+            }
+          }
+        } else if (w.role === 'loader') {
+          const barn = buildings.find(b => b.type === 'red_barn') || { x: 8, y: 6 };
+          const pvz = buildings.find(b => b.type === 'pvz_point') || { x: 9, y: 8 };
+          const target = (Math.floor(now / 3500) % 2 === 0) ? barn : pvz;
+          w.x += (target.x - w.x) * (2.0 * dt);
+          w.y += (target.y - w.y) * (2.0 * dt);
+          w.isMoving = true;
+
+          if (!w.lastAction || now - w.lastAction > 3800) {
+            w.lastAction = now;
+            if (getBarnCount() > gameState.barnMax * 0.6) {
+              for (const k in gameState.inventory) {
+                if (gameState.inventory[k] >= 2) {
+                  sellItem(k, 2);
+                  showToast(`Борис доставил коробки в ПВЗ: продано 2 шт. ${CROPS[k] ? CROPS[k].name : k}!`);
+                  break;
+                }
+              }
+            }
+          }
+        } else if (w.role === 'driver') {
+          const pvz = buildings.find(b => b.type === 'pvz_point') || { x: 9, y: 8 };
+          w.x += (pvz.x + 0.8 - w.x) * (2.0 * dt);
+          w.y += (pvz.y + 0.8 - w.y) * (2.0 * dt);
+          w.isMoving = false;
+
+          if (!w.lastAction || now - w.lastAction > 3500) {
+            w.lastAction = now;
+            const completable = gameState.orders.find(o => {
+              for (const k in o.req) {
+                if ((gameState.inventory[k] || 0) < o.req[k]) return false;
+              }
+              return true;
+            });
+            if (completable) {
+              completeOrder(completable.id, true);
+              showToast(`Илья отгрузил из ПВЗ заказ «${completable.name}»!`);
+            }
+          }
+        }
+      });
+    }
+
+    /* ==========================================================================
+       ПОСТРОЙКИ
+       ========================================================================== */
+    function drawPvzPoint(b) {
+      const pos = gridToScreen(b.x + 0.5, b.y + 0.5);
+      const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 8 * s, 38 * s, 19 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
+      ctx.fillStyle = '#512da8'; ctx.fillRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.strokeStyle = '#311b92'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.fillStyle = '#d1c4e9'; ctx.fillRect(pos.x - 18 * s, pos.y - 24 * s, 36 * s, 16 * s);
+      ctx.fillStyle = '#ffb300'; ctx.fillRect(pos.x - 6 * s, pos.y - 14 * s, 12 * s, 10 * s);
+      ctx.fillStyle = '#e040fb'; ctx.fillRect(pos.x - 20 * s, pos.y - 50 * s, 40 * s, 12 * s);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 * s; ctx.strokeRect(pos.x - 20 * s, pos.y - 50 * s, 40 * s, 12 * s);
+      ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.max(8, Math.floor(9 * s))}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.fillText('П В З', pos.x, pos.y - 41 * s);
+    }
+
+    function drawRealisticMill(mill) {
+      const pos = gridToScreen(mill.x + 0.5, mill.y + 0.5);
+      const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 12 * s, 42 * s, 22 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fill();
+      ctx.fillStyle = '#546e7a'; ctx.beginPath(); ctx.ellipse(pos.x, pos.y, 22 * s, 11 * s, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillRect(pos.x - 22 * s, pos.y - 28 * s, 44 * s, 28 * s);
+      ctx.fillStyle = '#4e342e'; ctx.fillRect(pos.x - 5 * s, pos.y - 18 * s, 10 * s, 18 * s);
+      ctx.fillStyle = '#bcaaa4'; ctx.beginPath();
+      ctx.moveTo(pos.x - 20 * s, pos.y - 28 * s); ctx.lineTo(pos.x - 14 * s, pos.y - 70 * s);
+      ctx.lineTo(pos.x + 14 * s, pos.y - 70 * s); ctx.lineTo(pos.x + 20 * s, pos.y - 28 * s);
+      ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 1.8 * s; ctx.stroke();
+      ctx.fillStyle = '#a8432a'; ctx.beginPath();
+      ctx.moveTo(pos.x - 24 * s, pos.y - 68 * s); ctx.lineTo(pos.x, pos.y - 94 * s); ctx.lineTo(pos.x + 24 * s, pos.y - 68 * s);
+      ctx.closePath(); ctx.fill();
+
+      const hubY = pos.y - 65 * s;
+      mill.bladeAngle = (mill.bladeAngle || 0) + (mill.production ? 0.08 : 0.02);
+      ctx.save();
+      ctx.translate(pos.x, hubY); ctx.rotate(mill.bladeAngle);
+      for (let i = 0; i < 4; i++) {
+        ctx.rotate(Math.PI / 2);
+        ctx.fillStyle = '#4e342e'; ctx.fillRect(-2 * s, 0, 4 * s, 48 * s);
+        ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 1 * s; ctx.strokeRect(2 * s, 10 * s, 14 * s, 36 * s);
+      }
+      ctx.restore();
+
+      if (mill.production && Date.now() >= mill.endTime) {
+        const bounce = Math.sin(Date.now() / 200) * 4 * s;
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(pos.x - 9 * s, pos.y - 100 * s + bounce, 18 * s, 14 * s);
+        ctx.strokeStyle = '#b0bec5'; ctx.strokeRect(pos.x - 9 * s, pos.y - 100 * s + bounce, 18 * s, 14 * s);
+      }
+    }
+
+    function drawRedBarn(b) {
+      const pos = gridToScreen(b.x + 0.5, b.y + 0.5);
+      const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 8 * s, 36 * s, 18 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
+      ctx.fillStyle = '#b71c1c'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
+      ctx.strokeStyle = '#7f0000'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
+      ctx.fillStyle = '#eceff1'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 4 * s, 38 * s); ctx.fillRect(pos.x + 22 * s, pos.y - 38 * s, 4 * s, 38 * s);
+      ctx.fillStyle = '#880e4f'; ctx.fillRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
+      ctx.beginPath(); ctx.moveTo(pos.x - 28 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 18 * s, pos.y - 58 * s);
+      ctx.lineTo(pos.x, pos.y - 68 * s); ctx.lineTo(pos.x + 18 * s, pos.y - 58 * s); ctx.lineTo(pos.x + 28 * s, pos.y - 38 * s);
+      ctx.closePath(); ctx.fillStyle = '#c62828'; ctx.fill();
+      ctx.fillStyle = '#78909c'; ctx.beginPath();
+      ctx.moveTo(pos.x - 30 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 19 * s, pos.y - 60 * s);
+      ctx.lineTo(pos.x, pos.y - 71 * s); ctx.lineTo(pos.x + 19 * s, pos.y - 60 * s); ctx.lineTo(pos.x + 30 * s, pos.y - 38 * s);
+      ctx.lineWidth = 3 * s; ctx.strokeStyle = '#cfd8dc'; ctx.stroke();
+    }
+
+    function drawCoopYard(c) {
+      const pos = gridToScreen(c.x + 0.5, c.y + 0.5);
+      const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 4 * s, 34 * s, 18 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
+      ctx.fillStyle = '#8d6e63'; ctx.fillRect(pos.x - 22 * s, pos.y - 28 * s, 26 * s, 22 * s);
+      ctx.fillStyle = '#d7a15c'; ctx.fillRect(pos.x - 20 * s, pos.y - 24 * s, 22 * s, 18 * s);
+      const peck = Math.abs(Math.sin(Date.now() / 240)) * 2 * s;
+      ctx.fillStyle = '#263238'; ctx.beginPath(); ctx.arc(pos.x - 6 * s, pos.y - 6 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.arc(pos.x + 8 * s, pos.y + 2 * s + peck, 3.8 * s, 0, Math.PI * 2); ctx.fill();
+      if (c.production && Date.now() >= c.endTime) {
+        const bounce = Math.sin(Date.now() / 200) * 4 * s;
+        ctx.fillStyle = '#fff8e1'; ctx.beginPath(); ctx.ellipse(pos.x, pos.y - 44 * s + bounce, 8 * s, 10 * s, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    function drawSceneryItem(item) {
+      const p = gridToScreen(item.x + 0.5, item.y + 0.5);
+      const s = camera.zoom;
+      if (item.type === 'stone_path') {
+        const hw = (TILE_W / 2) * s; const hh = (TILE_H / 2) * s;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y - hh); ctx.lineTo(p.x + hw, p.y); ctx.lineTo(p.x + hh, p.y + hh); ctx.lineTo(p.x - hw, p.y); ctx.closePath();
+        ctx.fillStyle = '#d7ccc8'; ctx.fill(); ctx.strokeStyle = '#bcaaa4'; ctx.lineWidth = 1; ctx.stroke();
+      } else if (item.type === 'fence') {
+        ctx.fillStyle = '#ffb74d'; ctx.fillRect(p.x - 16 * s, p.y - 6 * s, 32 * s, 4 * s); ctx.fillRect(p.x - 16 * s, p.y - 12 * s, 32 * s, 4 * s);
+      } else if (item.type === 'cliff') {
+        ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(p.x - 18 * s, p.y); ctx.lineTo(p.x - 12 * s, p.y - 32 * s);
+        ctx.lineTo(p.x + 4 * s, p.y - 40 * s); ctx.lineTo(p.x + 18 * s, p.y - 20 * s); ctx.lineTo(p.x + 14 * s, p.y); ctx.closePath(); ctx.fill();
+      } else if (item.type === 'bush') {
+        ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(p.x, p.y - 6 * s, 10 * s, 0, Math.PI * 2); ctx.fill();
+      } else if (item.type === 'barrel') {
+        ctx.fillStyle = '#8d6e63'; ctx.fillRect(p.x - 5 * s, p.y - 12 * s, 10 * s, 12 * s);
+      } else if (item.type === 'flowers') {
+        ctx.fillStyle = '#29b6f6'; ctx.beginPath(); ctx.arc(p.x - 4 * s, p.y - 4 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    function drawPlot(plot) {
+      const p = gridToScreen(plot.x, plot.y);
+      const hw = (TILE_W / 2) * camera.zoom;
+      const hh = (TILE_H / 2) * camera.zoom;
+      const s = camera.zoom;
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y + 2 * s); ctx.lineTo(p.x + hw - 3 * s, p.y + hh);
+      ctx.lineTo(p.x, p.y + hh * 2 - 2 * s); ctx.lineTo(p.x - hw + 3 * s, p.y + hh);
+      ctx.closePath();
+      ctx.fillStyle = '#5d4037'; ctx.fill(); ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 1.8 * s; ctx.stroke();
+
+      const hasTopLeft  = buildings.some(b => b.type === 'plot' && b.x === plot.x && b.y === plot.y - 1);
+      const hasTopRight = buildings.some(b => b.type === 'plot' && b.x === plot.x + 1 && b.y === plot.y);
+      const hasBotLeft  = buildings.some(b => b.type === 'plot' && b.x === plot.x - 1 && b.y === plot.y);
+      const hasBotRight = buildings.some(b => b.type === 'plot' && b.x === plot.x && b.y === plot.y + 1);
+
+      function draw3DFence(x1, y1, x2, y2, px, py) {
+        const fh = 14 * s;
+        ctx.strokeStyle = '#d7a15c'; ctx.lineWidth = 2.2 * s;
+        ctx.beginPath(); ctx.moveTo(x1, y1 - fh * 0.45); ctx.lineTo(x2, y2 - fh * 0.45);
+        ctx.moveTo(x1, y1 - fh * 0.85); ctx.lineTo(x2, y2 - fh * 0.85); ctx.stroke();
+        ctx.fillStyle = '#bcaaa4'; ctx.fillRect(px - 2.5 * s, py - fh, 5 * s, fh);
+      }
+
+      if (!hasTopLeft)  draw3DFence(p.x - hw, p.y + hh, p.x, p.y, p.x, p.y);
+      if (!hasTopRight) draw3DFence(p.x, p.y, p.x + hw, p.y + hh, p.x + hw, p.y + hh);
+      if (!hasBotLeft)  draw3DFence(p.x - hw, p.y + hh, p.x, p.y + hh * 2, p.x - hw, p.y + hh);
+      if (!hasBotRight) draw3DFence(p.x, p.y + hh * 2, p.x + hw, p.y + hh, p.x, p.y + hh * 2);
+
+      if (!plot.crop) return;
+
+      const crop = CROPS[plot.crop];
+      const elapsed = (Date.now() - plot.plantTime) / 1000;
+      const progress = Math.min(1, elapsed / crop.growTime);
+      const center = gridToScreen(plot.x + 0.5, plot.y + 0.5);
+
+      if (progress >= 1) plot.ready = true;
+
+      if (plot.crop === 'wheat') {
+        if (!plot.ready) {
+          ctx.strokeStyle = '#7cb342'; ctx.lineWidth = 1.6 * s; ctx.beginPath();
+          ctx.moveTo(center.x, center.y); ctx.lineTo(center.x, center.y - 12 * s); ctx.stroke();
+        } else {
+          for (let r = -2; r <= 2; r++) {
+            for (let c = -2; c <= 2; c++) {
+              const ox = (c - r) * 7 * s; const oy = (c + r) * 3.5 * s;
+              ctx.strokeStyle = '#c58411'; ctx.lineWidth = 1.2 * s; ctx.beginPath();
+              ctx.moveTo(center.x + ox, center.y + oy); ctx.lineTo(center.x + ox, center.y + oy - 18 * s); ctx.stroke();
+              ctx.fillStyle = '#fbc02d'; ctx.beginPath();
+              ctx.ellipse(center.x + ox, center.y + oy - 22 * s, 2.4 * s, 5.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+        }
+      } else if (plot.crop === 'beetroot') {
+        ctx.fillStyle = '#880e4f'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 7 * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#8bc34a'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 20 * s, 6 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
+      } else if (plot.crop === 'corn') {
+        ctx.fillStyle = '#33691e'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 4 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#fdd835'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 22 * s, 5.5 * s, 11 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      } else if (plot.crop === 'strawberry') {
+        ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(center.x, center.y - 6 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#e53935'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 10 * s, 5 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      } else if (plot.crop === 'pumpkin') {
+        ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 12 * s, 6 * s, 0, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#f57c00'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 12 * s, 9 * s, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffa726'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 6 * s, 9.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      if (plot.ready) {
+        const bounce = Math.sin(Date.now() / 180) * 4 * s;
+        ctx.fillStyle = '#ff9800'; ctx.fillRect(center.x - 9 * s, center.y - 36 * s + bounce, 18 * s, 11 * s);
+        ctx.strokeStyle = '#e65100'; ctx.lineWidth = 1.5 * s; ctx.strokeRect(center.x - 9 * s, center.y - 36 * s + bounce, 18 * s, 11 * s);
+      }
+    }
+
+    function drawBuildHoverTile(gx, gy) {
+      const p = gridToScreen(gx, gy);
+      const hw = (TILE_W / 2) * camera.zoom;
+      const hh = (TILE_H / 2) * camera.zoom;
+      const occupied = isCellOccupied(gx, gy);
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + hw, p.y + hh);
+      ctx.lineTo(p.x, p.y + hh * 2); ctx.lineTo(p.x - hw, p.y + hh); ctx.closePath();
+      ctx.fillStyle = occupied ? 'rgba(244, 67, 54, 0.5)' : 'rgba(76, 175, 80, 0.55)'; ctx.fill();
+      ctx.strokeStyle = occupied ? '#d32f2f' : '#2e7d32'; ctx.lineWidth = 2.5 * camera.zoom; ctx.stroke();
+    }
+
+    /* ==========================================================================
+       ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (60 FPS)
+       ========================================================================== */
+    let lastFrameTime = performance.now();
+
+    function renderLoop(now) {
+      const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
+      lastFrameTime = now;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#172c0b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < MAP_SIZE; y++) {
+        for (let x = 0; x < MAP_SIZE; x++) {
+          if (scenery.some(s => s.type === 'water' && s.x === x && s.y === y)) {
+            drawWaterTile(x, y);
+          } else {
+            drawGrassTile(x, y);
+          }
+        }
+      }
+
+      if (currentPlacement && hoverGrid.x >= 0 && hoverGrid.y >= 0) {
+        drawBuildHoverTile(hoverGrid.x, hoverGrid.y);
+      }
+
+      scenery.forEach(item => {
+        if (item.type !== 'water') drawSceneryItem(item);
+      });
+
+      const renderList = [...buildings].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+      renderList.forEach(b => {
+        if (b.type === 'plot') drawPlot(b);
+        else if (b.type === 'mill') drawRealisticMill(b);
+        else if (b.type === 'red_barn') drawRedBarn(b);
+        else if (b.type === 'coop_yard') drawCoopYard(b);
+        else if (b.type === 'pvz_point') drawPvzPoint(b);
+      });
+
+      updateWorkersAutomation(dt);
+      activeWorkers.forEach(w => drawDetailedWorker(w, dt));
+
+      requestAnimationFrame(renderLoop);
+    }
+    requestAnimationFrame(renderLoop);
+
+    /* ==========================================================================
+       УПРАВЛЕНИЕ МЫШЬЮ И ХИТБОКСАМИ
+       ========================================================================== */
+    let isDragging = false;
+    let dragStartX = 0, dragStartY = 0;
+    let didMove = false;
+    let currentPlacement = null;
+    let hoverGrid = { x: -1, y: -1 };
+
+    window.addEventListener('mousedown', (e) => {
+      if (e.target !== canvas) return;
+      isDragging = true; didMove = false;
+      dragStartX = e.clientX - camera.x; dragStartY = e.clientY - camera.y;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      hoverGrid = screenToGrid(e.clientX, e.clientY);
+      if (!isDragging) return;
+      didMove = true;
+      camera.x = e.clientX - dragStartX; camera.y = e.clientY - dragStartY;
+      hideRadialBubble();
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (!didMove) onCanvasClick(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.target !== canvas || e.touches.length !== 1) return;
+      isDragging = true; didMove = false;
+      dragStartX = e.touches[0].clientX - camera.x; dragStartY = e.touches[0].clientY - camera.y;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      didMove = true;
+      camera.x = e.touches[0].clientX - dragStartX; camera.y = e.touches[0].clientY - dragStartY;
+      hideRadialBubble();
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (!didMove && e.changedTouches.length > 0) {
+        onCanvasClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      }
+    });
+
+    window.addEventListener('wheel', (e) => {
+      if (e.target !== canvas) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      camera.zoom = Math.min(Math.max(camera.zoom * factor, 0.6), 1.8);
+    }, { passive: false });
+
+    function findBuildingByHitbox(clickX, clickY) {
+      let nearest = null;
+      let minDistance = Infinity;
+      buildings.forEach(b => {
+        const center = gridToScreen(b.x + 0.5, b.y + 0.5);
+        let offsetY = 0;
+        let hitboxRadius = 48 * camera.zoom;
+        if (b.type === 'mill') { offsetY = -35 * camera.zoom; hitboxRadius = 65 * camera.zoom; }
+        else if (b.type === 'red_barn' || b.type === 'pvz_point') { offsetY = -25 * camera.zoom; hitboxRadius = 60 * camera.zoom; }
+        else if (b.type === 'coop_yard') { hitboxRadius = 52 * camera.zoom; }
+
+        const dist = Math.hypot(clickX - center.x, clickY - (center.y + offsetY));
+        if (dist <= hitboxRadius && dist < minDistance) {
+          minDistance = dist;
+          nearest = b;
+        }
+      });
+      return nearest;
+    }
+
+    function onCanvasClick(cx, cy) {
+      const g = screenToGrid(cx, cy);
+
+      if (currentPlacement) {
+        placeCurrentObject(g.x, g.y);
+        return;
+      }
+
+      const clicked = findBuildingByHitbox(cx, cy) || buildings.find(b => b.x === g.x && b.y === g.y);
+      if (!clicked) {
+        hideRadialBubble();
+        return;
+      }
+
+      const scr = gridToScreen(clicked.x + 0.5, clicked.y + 0.2);
+
+      if (clicked.type === 'plot') {
+        if (!clicked.crop) {
+          let html = '';
+          for (const key in CROPS) {
+            const crop = CROPS[key];
+            html += `
+              <div class="bubble-item" onclick="plantSeed('${clicked.id}', '${key}')">
+                <div class="crop-preview">${crop.svg}</div>
+                <span>${crop.name}</span>
+                <div class="price-row">${crop.seedCost} ${SVG_COIN}</div>
+              </div>
+            `;
+          }
+          showRadialBubble(scr, html);
+        } else if (clicked.ready) {
+          harvestPlot(clicked);
+        } else {
+          const crop = CROPS[clicked.crop];
+          const left = Math.ceil(crop.growTime - (Date.now() - clicked.plantTime) / 1000);
+          showToast(`⏳ ${crop.name} созреет через ${left} сек.`);
+        }
+      } else if (clicked.type === 'mill') {
+        if (clicked.production && Date.now() >= clicked.endTime) {
+          if (addToBarn('flour', 1)) {
+            addXP(PRODUCTS.flour.xp);
+            audioSys.playPop();
+            showToast('Мука перемещена в амбар!');
+            clicked.production = null;
+            saveGameData();
+          }
+        } else if (!clicked.production) {
+          const has = gameState.inventory.wheat || 0;
+          let html = `
+            <div class="bubble-item" onclick="startMill('${clicked.id}')">
+              <div class="crop-preview">${SVG_FLOUR}</div>
+              <span>Мука (${has}/2)</span>
+              <span style="color:#2e7d32; font-weight:800; font-size:10px;">10 сек</span>
+            </div>
+          `;
+          showRadialBubble(scr, html);
+        }
+      } else if (clicked.type === 'red_barn') {
+        document.getElementById('btn-open-barn').click();
+      } else if (clicked.type === 'pvz_point') {
+        document.getElementById('btn-open-orders').click();
+      } else if (clicked.type === 'coop_yard') {
+        if (clicked.production && Date.now() >= clicked.endTime) {
+          if (addToBarn('egg', 2)) {
+            addXP(PRODUCTS.egg.xp);
+            audioSys.playPop();
+            showToast('Собрано 2 свежих яйца!');
+            clicked.production = null;
+            saveGameData();
+          }
+        } else if (!clicked.production) {
+          const has = gameState.inventory.wheat || 0;
+          let html = `
+            <div class="bubble-item" onclick="startCoop('${clicked.id}')">
+              <div class="crop-preview">${SVG_WHEAT}</div>
+              <span>Корм (${has}/1)</span>
+              <span style="color:#2e7d32; font-weight:800; font-size:10px;">15 сек</span>
+            </div>
+          `;
+          showRadialBubble(scr, html);
+        }
+      }
+    }
+
+    /* ==========================================================================
+       СТРОИТЕЛЬСТВО
+       ========================================================================== */
+    function startPlacement(type) {
+      const item = BUILD_CATALOG[type];
+      if (!item) return;
+      if (gameState.coins < item.cost) {
+        showToast('Недостаточно монет для постройки!');
+        return;
+      }
+      closeModal('modal-shop');
+      currentPlacement = { type, cost: item.cost, name: item.name };
+      document.body.classList.add('building-active');
+      document.getElementById('build-banner').style.display = 'flex';
+      document.getElementById('build-banner-text').innerText = `Размещение: ${item.name} (${item.cost} монет). Кликните на свободную клетку!`;
+      showToast(`Выберите место на карте для: ${item.name}`);
+    }
+
+    function cancelPlacement() {
+      if (currentPlacement) {
+        currentPlacement = null;
+        document.body.classList.remove('building-active');
+        document.getElementById('build-banner').style.display = 'none';
+        showToast('Строительство отменено');
+      }
+    }
+
+    function isCellOccupied(gx, gy) {
+      if (gx < 0 || gy < 0 || gx >= MAP_SIZE || gy >= MAP_SIZE) return true;
+      if (buildings.some(b => b.x === gx && b.y === gy)) return true;
+      if (scenery.some(s => s.x === gx && s.y === gy)) return true;
+      return false;
+    }
+
+    function placeCurrentObject(gx, gy) {
+      if (!currentPlacement) return;
+      if (isCellOccupied(gx, gy)) {
+        showToast('Эта клетка уже занята!');
+        return;
+      }
+      if (gameState.coins < currentPlacement.cost) {
+        showToast('Недостаточно монет!');
+        cancelPlacement();
+        return;
+      }
+
+      gameState.coins -= currentPlacement.cost;
+      audioSys.playCoins();
+
+      const type = currentPlacement.type;
+      if (type === 'plot') {
+        buildings.push({ id: 'b_p_' + Date.now(), type: 'plot', x: gx, y: gy, crop: null, plantTime: 0, ready: false });
+      } else if (type === 'mill') {
+        buildings.push({ id: 'b_mill_' + Date.now(), type: 'mill', x: gx, y: gy, production: null, endTime: 0, bladeAngle: 0 });
+      } else if (type === 'pvz_point') {
+        buildings.push({ id: 'b_pvz_' + Date.now(), type: 'pvz_point', x: gx, y: gy });
+      } else if (type === 'red_barn') {
+        buildings.push({ id: 'b_barn_' + Date.now(), type: 'red_barn', x: gx, y: gy });
+        gameState.barnMax += 40;
+        showToast('Вместимость амбара увеличена на +40!');
+      } else if (type === 'coop_yard') {
+        buildings.push({ id: 'b_coop_' + Date.now(), type: 'coop_yard', x: gx, y: gy, production: null, endTime: 0 });
+      } else if (type === 'stone_path' || type === 'fence' || type === 'bush') {
+        scenery.push({ type: type, x: gx, y: gy, flower: type === 'bush' ? '#ff4081' : undefined });
+      }
+
+      showToast(`Построено: ${currentPlacement.name}!`);
+      updateUI();
+      saveGameData();
+      cancelPlacement();
+    }
+
+    /* ==========================================================================
+       ПОСАДКА И ПЕРЕРАБОТКА
+       ========================================================================== */
+    const radialBubble = document.getElementById('radial-bubble');
+
+    function hideRadialBubble() {
+      radialBubble.style.display = 'none';
+      radialBubble.innerHTML = '';
+    }
+
+    function showRadialBubble(pos, html) {
+      radialBubble.innerHTML = html;
+      radialBubble.style.left = pos.x + 'px';
+      radialBubble.style.top = pos.y + 'px';
+      radialBubble.style.display = 'flex';
+    }
+
+    window.plantSeed = function(plotId, key) {
+      hideRadialBubble();
+      const plot = buildings.find(b => b.id === plotId);
+      const crop = CROPS[key];
+      if (gameState.coins < crop.seedCost) {
+        showToast('Недостаточно монет!');
+        return;
+      }
+      gameState.coins -= crop.seedCost;
+      plot.crop = key;
+      plot.plantTime = Date.now();
+      plot.ready = false;
+      audioSys.playPop();
+      updateUI();
+      saveGameData();
+    };
+
+    function harvestPlot(plot, isAuto = false) {
+      const crop = CROPS[plot.crop];
+      if (addToBarn(plot.crop, 2)) {
+        addXP(crop.xp);
+        if (!isAuto) audioSys.playPop();
+        if (!isAuto) showToast(`+2 ${crop.name} собрано!`);
+        plot.crop = null;
+        plot.ready = false;
+        saveGameData();
+      }
+    }
+
+    window.startMill = function(id) {
+      hideRadialBubble();
+      const m = buildings.find(b => b.id === id);
+      if ((gameState.inventory.wheat || 0) < 2) {
+        showToast('Нужно 2 пшеницы!');
+        return;
+      }
+      gameState.inventory.wheat -= 2;
+      m.production = 'flour';
+      m.endTime = Date.now() + PRODUCTS.flour.time * 1000;
+      audioSys.playPop();
+      updateUI();
+      saveGameData();
+    };
+
+    window.startCoop = function(id) {
+      hideRadialBubble();
+      const c = buildings.find(b => b.id === id);
+      if ((gameState.inventory.wheat || 0) < 1) {
+        showToast('Нужно 1 зерно для корма!');
+        return;
+      }
+      gameState.inventory.wheat -= 1;
+      c.production = 'egg';
+      c.endTime = Date.now() + PRODUCTS.egg.time * 1000;
+      audioSys.playPop();
+      updateUI();
+      saveGameData();
+    };
+
+    /* ==========================================================================
+       УПРАВЛЕНИЕ: ESC И МЕНЮ
+       ========================================================================== */
+    let isGameStarted = false;
+
+    function togglePauseMenu() {
+      if (!isGameStarted) return;
+      const menu = document.getElementById('main-menu-screen');
+      if (menu.classList.contains('screen-hidden')) {
+        cancelPlacement();
+        closeAllModals();
+        menu.classList.remove('screen-hidden');
+        document.getElementById('btn-play-text').innerText = 'ПРОДОЛЖИТЬ';
+      } else {
+        menu.classList.add('screen-hidden');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.code === 'Escape') {
+        if (currentPlacement) {
+          cancelPlacement();
+          return;
+        }
+        const openModalEl = document.querySelector('.modal-overlay[style*="display: flex"]');
+        if (openModalEl) {
+          openModalEl.style.display = 'none';
+          return;
+        }
+        togglePauseMenu();
+      }
+    });
+
+    const mainMenuScreen = document.getElementById('main-menu-screen');
+    const nicknameScreen = document.getElementById('nickname-screen');
+    const tutorialScreen = document.getElementById('tutorial-screen');
+
+    document.getElementById('btn-start-game').addEventListener('click', () => {
+      audioSys.init();
+      audioSys.playPop();
+      if (!isGameStarted) {
+        mainMenuScreen.classList.add('screen-hidden');
+        nicknameScreen.classList.remove('screen-hidden');
+        document.getElementById('nick-field').focus();
+      } else {
+        mainMenuScreen.classList.add('screen-hidden');
+      }
+    });
+
+    document.getElementById('btn-menu-settings').addEventListener('click', () => {
+      openModal('modal-settings');
+    });
+
+    document.getElementById('btn-menu-developer').addEventListener('click', () => {
+      openModal('modal-dev');
+    });
+
+    document.getElementById('btn-menu-workers').addEventListener('click', () => {
+      switchWorkerTab('management');
+      openModal('modal-workers');
+    });
+
+    document.getElementById('btn-hud-workers').addEventListener('click', () => {
+      switchWorkerTab('management');
+      openModal('modal-workers');
+    });
+
+    document.getElementById('btn-confirm-nick').addEventListener('click', () => {
+      const input = document.getElementById('nick-field').value.trim();
+      if (input.length > 0) gameState.playerName = input;
+      document.getElementById('hud-player-name').innerText = gameState.playerName;
+      audioSys.playPop();
+      nicknameScreen.classList.add('screen-hidden');
+      startTutorial();
+    });
+
+    const TUTORIAL_STEPS = [
+      {
+        badge: 'Шаг 1 из 3',
+        icon: SVG_WHEAT,
+        title: 'Широкие просторы Долины',
+        desc: `Добро пожаловать, ${gameState.playerName}! Прогресс сохраняется в облачную базу данных MongoDB. Агроном Прохор контролирует посевы, стройте ПВЗ и расширяйте амбар!`
+      },
+      {
+        badge: 'Шаг 2 из 3',
+        icon: SVG_FLOUR,
+        title: 'ПВЗ и оборот склада',
+        desc: 'ПВЗ позволяет быстро отдавать заказы и получать монеты, а излишки товаров сразу идут в финансовый оборот.'
+      },
+      {
+        badge: 'Шаг 3 из 3',
+        icon: SVG_COIN,
+        title: 'Управление и Esc',
+        desc: 'Нажимайте Esc в любой момент для вызова Главного меню. Приятной игры!'
+      }
+    ];
+
+    let currentTutStep = 0;
+    function startTutorial() {
+      currentTutStep = 0;
+      showTutStep(0);
+      tutorialScreen.classList.remove('screen-hidden');
+    }
+
+    function showTutStep(idx) {
+      const s = TUTORIAL_STEPS[idx];
+      document.getElementById('tut-badge').innerText = s.badge;
+      document.getElementById('tut-icon-box').innerHTML = s.icon;
+      document.getElementById('tut-title').innerText = s.title;
+      document.getElementById('tut-desc').innerText = s.desc;
+
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`tdot-${i}`).classList.toggle('active', i === idx);
+      }
+      document.getElementById('btn-tut-next').innerText = (idx === 2) ? 'Начать фермерство!' : 'Далее';
+    }
+
+    document.getElementById('btn-tut-next').addEventListener('click', () => {
+      audioSys.playPop();
+      if (currentTutStep < 2) {
+        currentTutStep++;
+        showTutStep(currentTutStep);
+      } else {
+        tutorialScreen.classList.add('screen-hidden');
+        isGameStarted = true;
+        audioSys.playFanfare();
+        showToast(`Добро пожаловать на ферму, ${gameState.playerName}!`);
+        updateUI();
+        saveGameData();
+      }
+    });
+
+    /* ==========================================================================
+       ЭКОНОМИКА, АМБАР, РЫНОК И МОДАЛКИ
+       ========================================================================== */
+    let lastToastText = '';
+    let lastToastTime = 0;
+
+    function showToast(text) {
+      const now = Date.now();
+      if (text === lastToastText && now - lastToastTime < 2400) return;
+      lastToastText = text;
+      lastToastTime = now;
+
+      const c = document.getElementById('toast-container');
+      c.innerHTML = '';
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerText = text;
+      c.appendChild(t);
+      setTimeout(() => {
+        if (t.parentNode === c) t.remove();
+      }, 2200);
+    }
+
+    function addXP(amount) {
+      gameState.xp += amount;
+      const target = gameState.level * 60;
+      if (gameState.xp >= target) {
+        gameState.xp -= target;
+        gameState.level++;
+        gameState.coins += gameState.level * 80;
+        gameState.gems += 3;
+        audioSys.playFanfare();
+        showToast(`Уровень ${gameState.level}! Награда: +${gameState.level * 80} монет, +3 кристалла!`);
+      }
+      updateUI();
+      saveGameData();
+    }
+
+    function getBarnCount() {
+      let count = 0;
+      for (const k in gameState.inventory) count += gameState.inventory[k] || 0;
+      return count;
+    }
+
+    function addToBarn(key, qty) {
+      if (getBarnCount() + qty > gameState.barnMax) {
+        showToast('Амбар полон! Логисты отгружают излишки в ПВЗ.');
+        return false;
+      }
+      gameState.inventory[key] = (gameState.inventory[key] || 0) + qty;
+      updateUI();
+      saveGameData();
+      return true;
+    }
+
+    function updateUI() {
+      document.getElementById('hud-coins').innerText = gameState.coins;
+      document.getElementById('hud-gems').innerText = gameState.gems;
+      document.getElementById('hud-level').innerText = `Ур. ${gameState.level}`;
+
+      const target = gameState.level * 60;
+      const pct = Math.min(100, Math.floor((gameState.xp / target) * 100));
+      document.getElementById('xp-bar-fill').style.width = pct + '%';
+
+      document.getElementById('barn-used-hud').innerText = getBarnCount();
+      document.getElementById('barn-cap-hud').innerText = gameState.barnMax;
+
+      const barnLvlTxt = document.getElementById('barn-level-txt');
+      if (barnLvlTxt) barnLvlTxt.innerText = gameState.barnLevel || 1;
+      const barnCostTxt = document.getElementById('barn-up-cost');
+      if (barnCostTxt) barnCostTxt.innerText = gameState.barnUpgradeCost || 250;
+    }
+
+    function openModal(id) {
+      hideRadialBubble();
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+    }
+
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeModal(btn.getAttribute('data-close'));
+      });
+    });
+
+    document.getElementById('btn-open-barn').addEventListener('click', () => {
+      const grid = document.getElementById('barn-items-grid');
+      grid.innerHTML = '';
+      const all = { ...CROPS, ...PRODUCTS };
+      let count = 0;
+
+      for (const k in gameState.inventory) {
+        const qty = gameState.inventory[k];
+        if (qty > 0) {
+          count++;
+          const info = all[k];
+          const div = document.createElement('div');
+          div.className = 'card-item';
+          div.innerHTML = `
+            <div class="card-svg-box">${info.svg}</div>
+            <div>${info.name}</div>
+            <div style="font-size:12px; color:#795548;">В наличии: <b>${qty}</b></div>
+            <button class="card-btn" onclick="sellItem('${k}', 1)">Продать (+${info.sellPrice} монет)</button>
+          `;
+          grid.appendChild(div);
+        }
+      }
+      if (count === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #8d6e63; padding: 20px;">В амбаре пусто.</div>';
+      }
+      openModal('modal-barn');
+    });
+
+    window.sellItem = function(key, qty) {
+      if ((gameState.inventory[key] || 0) >= qty) {
+        const all = { ...CROPS, ...PRODUCTS };
+        const price = (all[key] ? all[key].sellPrice : 4) * qty;
+        gameState.inventory[key] -= qty;
+        gameState.coins += price;
+        audioSys.playCoins();
+        updateUI();
+        saveGameData();
+        const barnModal = document.getElementById('modal-barn');
+        if (barnModal.style.display === 'flex') {
+          document.getElementById('btn-open-barn').click();
+        }
+      }
+    };
+
+    document.getElementById('btn-open-orders').addEventListener('click', () => {
+      const grid = document.getElementById('orders-items-grid');
+      grid.innerHTML = '';
+      const all = { ...CROPS, ...PRODUCTS };
+
+      gameState.orders.forEach(o => {
+        let canFulfill = true;
+        let listHtml = '';
+        for (const k in o.req) {
+          const need = o.req[k];
+          const have = gameState.inventory[k] || 0;
+          if (have < need) canFulfill = false;
+          listHtml += `<div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+            <span style="width:20px; height:20px; display:inline-block;">${all[k] ? all[k].svg : SVG_WHEAT}</span> 
+            ${have}/${need}
+          </div>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'card-item';
+        div.innerHTML = `
+          <div style="font-size:14px; font-weight:800;">${o.name}</div>
+          <div style="background: rgba(0,0,0,0.05); padding: 6px; border-radius: 8px; font-size:12px; margin: 4px 0; width:100%;">
+            ${listHtml}
+          </div>
+          <div style="font-size:12px; color:#f57f17; font-weight:800;">+${o.rewardCoins} монет | +${o.rewardXp} опыта</div>
+          <button class="card-btn" style="background:${canFulfill ? '#4caf50' : '#b0bec5'}" ${canFulfill ? `onclick="completeOrder(${o.id})"` : 'disabled'}>
+            ${canFulfill ? '📦 Выдать заказ' : 'Ждет товаров'}
+          </button>
+        `;
+        grid.appendChild(div);
+      });
+
+      openModal('modal-orders');
+    });
+
+    window.completeOrder = function(orderId, isAuto = false) {
+      const idx = gameState.orders.findIndex(o => o.id === orderId);
+      if (idx === -1) return;
+      const o = gameState.orders[idx];
+
+      for (const k in o.req) gameState.inventory[k] -= o.req[k];
+      gameState.coins += o.rewardCoins;
+      addXP(o.rewardXp);
+      if (!isAuto) audioSys.playCoins();
+
+      const cropsPool = Object.keys(CROPS);
+      const randCrop = cropsPool[Math.floor(Math.random() * cropsPool.length)];
+
+      gameState.orders[idx] = {
+        id: Date.now(),
+        name: 'ПВЗ: Заказ покупателя',
+        req: { [randCrop]: Math.floor(Math.random() * 4) + 2 },
+        rewardCoins: Math.floor(Math.random() * 120) + 40,
+        rewardXp: Math.floor(Math.random() * 35) + 15
+      };
+
+      updateUI();
+      saveGameData();
+      const ordModal = document.getElementById('modal-orders');
+      if (ordModal.style.display === 'flex') {
+        document.getElementById('btn-open-orders').click();
+      }
+    };
+
+    let currentShopCategory = 'production';
+    window.switchShopTab = function(category) {
+      currentShopCategory = category;
+      document.querySelectorAll('#modal-shop .modal-tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', ['production', 'commerce', 'infra'][idx] === category);
+      });
+      renderShopList();
+    };
+
+    function renderShopList() {
+      const grid = document.getElementById('shop-items-grid');
+      grid.innerHTML = '';
+
+      for (const key in BUILD_CATALOG) {
+        const item = BUILD_CATALOG[key];
+        if (item.category !== currentShopCategory) continue;
+
+        let previewHtml = '';
+        if (key === 'plot') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3" fill="#795548" stroke="#4e342e" stroke-width="2"/></svg>`;
+        } else if (key === 'pvz_point') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="14" fill="#512da8"/><rect x="5" y="4" width="14" height="4" fill="#e040fb"/></svg>`;
+        } else if (key === 'market_shop') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="14" fill="#0288d1"/><path d="M2 8l10-5 10 5" fill="#ff5252"/></svg>`;
+        } else if (key === 'bakery_factory') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="14" fill="#ff8a65"/><path d="M2 8l10-5 10 5" fill="#bf360c"/><rect x="16" y="2" width="3" height="7" fill="#8d6e63"/></svg>`;
+        } else if (key === 'mill') {
+          previewHtml = `<svg viewBox="0 0 24 24"><polygon points="6,20 18,20 15,6 9,6" fill="#78909c"/><line x1="12" y1="6" x2="12" y2="2" stroke="#4e342e" stroke-width="2"/><line x1="6" y1="4" x2="18" y2="4" stroke="#4e342e" stroke-width="2"/></svg>`;
+        } else if (key === 'red_barn') {
+          previewHtml = `<svg viewBox="0 0 24 24"><path d="M4 10l8-6 8 6v10H4V10z" fill="#b71c1c" stroke="#7f0000" stroke-width="2"/></svg>`;
+        } else if (key === 'coop_yard') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="3" y="8" width="10" height="10" fill="#d7a15c"/><rect x="13" y="10" width="8" height="8" fill="none" stroke="#b0bec5" stroke-width="2"/><circle cx="17" cy="14" r="2" fill="#ff9800"/></svg>`;
+        } else if (key === 'stone_path') {
+          previewHtml = `<svg viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="#bcaaa4" stroke="#8d6e63" stroke-width="2"/></svg>`;
+        } else if (key === 'fence') {
+          previewHtml = `<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="4" fill="#ffb74d"/><rect x="4" y="14" width="16" height="4" fill="#ffb74d"/><rect x="6" y="3" width="3" height="18" fill="#8d6e63"/><rect x="15" y="3" width="3" height="18" fill="#8d6e63"/></svg>`;
+        } else if (key === 'bush') {
+          previewHtml = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#4caf50"/><circle cx="10" cy="10" r="2" fill="#e91e63"/><circle cx="14" cy="13" r="2" fill="#ffeb3b"/></svg>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'card-item';
+        div.innerHTML = `
+          <div class="card-svg-box">${previewHtml}</div>
+          <div style="font-weight:900; font-size:13px;">${item.name}</div>
+          <div style="font-size:11px; color:#5d4037;">${item.desc}</div>
+          <div style="font-size:12px; color:#e65100; font-weight:800; margin-top:2px;">${item.cost} монет</div>
+          <button class="card-btn" onclick="startPlacement('${key}')">Разместить</button>
+        `;
+        grid.appendChild(div);
+      }
+    }
+
+    document.getElementById('btn-open-shop').addEventListener('click', () => {
+      switchShopTab('production');
+      openModal('modal-shop');
+    });
+
+    let currentWorkerCategory = 'management';
+    window.switchWorkerTab = function(category) {
+      currentWorkerCategory = category;
+      document.querySelectorAll('#modal-workers .modal-tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', ['management', 'farm', 'logistics'][idx] === category);
+      });
+      renderWorkersList();
+    };
+
+    function renderWorkersList() {
+      const grid = document.getElementById('workers-grid');
+      grid.innerHTML = '';
+
+      for (const id in WORKERS_CATALOG) {
+        const w = WORKERS_CATALOG[id];
+        if (w.category !== currentWorkerCategory) continue;
+
+        const isHired = !!gameState.hiredWorkers[id];
+        const div = document.createElement('div');
+        div.className = 'card-item';
+        div.innerHTML = `
+          <div class="card-svg-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="#ffb74d"/><path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" fill="${w.shirtColor}"/><path d="M7 4h10l-2-2H9z" fill="${w.hatColor}"/></svg>
+          </div>
+          <div style="font-weight:900; font-size:13px;">${w.name}</div>
+          <div style="font-size:11px; color:#2e7d32; font-weight:700;">${w.role}</div>
+          <div style="font-size:11px; color:#5d4037;">${w.desc}</div>
+          <div style="font-size:12px; color:#e65100; font-weight:800; margin-top:4px;">${w.cost} монет</div>
+          <button class="card-btn" ${isHired ? 'disabled' : `onclick="hireWorker('${id}')"`}>
+            ${isHired ? 'В штате на ферме' : 'Нанять'}
+          </button>
+        `;
+        grid.appendChild(div);
+      }
+    }
+
+    window.hireWorker = function(workerId) {
+      const w = WORKERS_CATALOG[workerId];
+      if (gameState.coins < w.cost) {
+        showToast('Недостаточно монет для найма!');
+        return;
+      }
+      gameState.coins -= w.cost;
+      gameState.hiredWorkers[workerId] = true;
+      audioSys.playCoins();
+
+      activeWorkers.push({
+        id: workerId,
+        name: w.name.split(' ')[0],
+        role: workerId,
+        x: 5 + (activeWorkers.length * 0.9),
+        y: 5 + (activeWorkers.length * 0.6),
+        shirtColor: w.shirtColor,
+        hatColor: w.hatColor,
+        animOffset: Math.random() * 10,
+        working: false,
+        isMoving: false,
+        walkTime: 0,
+        lastAction: 0
+      });
+
+      renderWorkersList();
+      updateUI();
+      saveGameData();
+      showToast(`${w.name} приступил к управлению в долине!`);
+    };
+
+    // Загрузка из базы MongoDB при старте
+    loadGameData().then(() => {
+      updateUI();
+    });
+  </script>
+</body>
+</html>

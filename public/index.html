@@ -542,10 +542,7 @@
         osc.frequency.exponentialRampToValueAtTime(740, this.ctx.currentTime + 0.1);
         g.gain.setValueAtTime(0.2, this.ctx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-        osc.connect(g);
-        g.connect(this.sfxGain);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.1);
+        osc.connect(g); g.connect(this.sfxGain); osc.start(); osc.stop(this.ctx.currentTime + 0.1);
       }
       playCoins() {
         if (!this.sfxEnabled) return;
@@ -558,10 +555,7 @@
           osc.frequency.setValueAtTime(980 + i * 260, t + delay);
           g.gain.setValueAtTime(0.25, t + delay);
           g.gain.exponentialRampToValueAtTime(0.01, t + delay + 0.14);
-          osc.connect(g);
-          g.connect(this.sfxGain);
-          osc.start(t + delay);
-          osc.stop(t + delay + 0.15);
+          osc.connect(g); g.connect(this.sfxGain); osc.start(t + delay); osc.stop(t + delay + 0.15);
         });
       }
       playFanfare() {
@@ -575,10 +569,7 @@
           osc.frequency.setValueAtTime(freq, t + idx * 0.12);
           g.gain.setValueAtTime(0.28, t + idx * 0.12);
           g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.12 + 0.38);
-          osc.connect(g);
-          g.connect(this.sfxGain);
-          osc.start(t + idx * 0.12);
-          osc.stop(t + idx * 0.12 + 0.4);
+          osc.connect(g); g.connect(this.sfxGain); osc.start(t + idx * 0.12); osc.stop(t + idx * 0.12 + 0.4);
         });
       }
       startMusicLoop() {
@@ -592,10 +583,7 @@
           this.musicNoteIdx++;
           g.gain.setValueAtTime(0.08, this.ctx.currentTime);
           g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.55);
-          osc.connect(g);
-          g.connect(this.musicGain);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.58);
+          osc.connect(g); g.connect(this.musicGain); osc.start(); osc.stop(this.ctx.currentTime + 0.58);
         }, 600);
       }
     }
@@ -836,6 +824,24 @@
       ctx.closePath();
       ctx.fillStyle = '#5d4037'; ctx.fill(); ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 1.8 * s; ctx.stroke();
 
+      const hasTopLeft  = buildings.some(b => b.type === 'plot' && b.x === plot.x && b.y === plot.y - 1);
+      const hasTopRight = buildings.some(b => b.type === 'plot' && b.x === plot.x + 1 && b.y === plot.y);
+      const hasBotLeft  = buildings.some(b => b.type === 'plot' && b.x === plot.x - 1 && b.y === plot.y);
+      const hasBotRight = buildings.some(b => b.type === 'plot' && b.x === plot.x && b.y === plot.y + 1);
+
+      function draw3DFence(x1, y1, x2, y2, px, py) {
+        const fh = 14 * s;
+        ctx.strokeStyle = '#d7a15c'; ctx.lineWidth = 2.2 * s;
+        ctx.beginPath(); ctx.moveTo(x1, y1 - fh * 0.45); ctx.lineTo(x2, y2 - fh * 0.45);
+        ctx.moveTo(x1, y1 - fh * 0.85); ctx.lineTo(x2, y2 - fh * 0.85); ctx.stroke();
+        ctx.fillStyle = '#bcaaa4'; ctx.fillRect(px - 2.5 * s, py - fh, 5 * s, fh);
+      }
+
+      if (!hasTopLeft)  draw3DFence(p.x - hw, p.y + hh, p.x, p.y, p.x, p.y);
+      if (!hasTopRight) draw3DFence(p.x, p.y, p.x + hw, p.y + hh, p.x + hw, p.y + hh);
+      if (!hasBotLeft)  draw3DFence(p.x - hw, p.y + hh, p.x, p.y + hh * 2, p.x - hw, p.y + hh);
+      if (!hasBotRight) draw3DFence(p.x, p.y + hh * 2, p.x + hw, p.y + hh, p.x, p.y + hh * 2);
+
       if (!plot.crop) return;
 
       const crop = CROPS[plot.crop];
@@ -843,35 +849,138 @@
       if (elapsed >= crop.growTime) plot.ready = true;
       const center = gridToScreen(plot.x + 0.5, plot.y + 0.5);
 
+      if (plot.crop === 'wheat') {
+        if (!plot.ready) {
+          ctx.strokeStyle = '#7cb342'; ctx.lineWidth = 1.6 * s; ctx.beginPath();
+          ctx.moveTo(center.x, center.y); ctx.lineTo(center.x, center.y - 12 * s); ctx.stroke();
+        } else {
+          for (let r = -2; r <= 2; r++) {
+            for (let c = -2; c <= 2; c++) {
+              const ox = (c - r) * 7 * s; const oy = (c + r) * 3.5 * s;
+              ctx.strokeStyle = '#c58411'; ctx.lineWidth = 1.2 * s; ctx.beginPath();
+              ctx.moveTo(center.x + ox, center.y + oy); ctx.lineTo(center.x + ox, center.y + oy - 18 * s); ctx.stroke();
+              ctx.fillStyle = '#fbc02d'; ctx.beginPath();
+              ctx.ellipse(center.x + ox, center.y + oy - 22 * s, 2.4 * s, 5.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+        }
+      } else if (plot.crop === 'beetroot') {
+        ctx.fillStyle = '#880e4f'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 7 * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#8bc34a'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 20 * s, 6 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
+      } else if (plot.crop === 'corn') {
+        ctx.fillStyle = '#33691e'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 4 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#fdd835'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 22 * s, 5.5 * s, 11 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      } else if (plot.crop === 'strawberry') {
+        ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(center.x, center.y - 6 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#e53935'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 10 * s, 5 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      } else if (plot.crop === 'pumpkin') {
+        ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 12 * s, 6 * s, 0, 0, Math.PI * 2); ctx.fill();
+        if (plot.ready) {
+          ctx.fillStyle = '#f57c00'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 12 * s, 9 * s, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffa726'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 6 * s, 9.5 * s, 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
       if (plot.ready) {
-        ctx.fillStyle = '#ff9800'; ctx.fillRect(center.x - 9 * s, center.y - 36 * s, 18 * s, 11 * s);
-        ctx.strokeStyle = '#e65100'; ctx.lineWidth = 1.5 * s; ctx.strokeRect(center.x - 9 * s, center.y - 36 * s, 18 * s, 11 * s);
+        const bounce = Math.sin(Date.now() / 180) * 4 * s;
+        ctx.fillStyle = '#ff9800'; ctx.fillRect(center.x - 9 * s, center.y - 36 * s + bounce, 18 * s, 11 * s);
+        ctx.strokeStyle = '#e65100'; ctx.lineWidth = 1.5 * s; ctx.strokeRect(center.x - 9 * s, center.y - 36 * s + bounce, 18 * s, 11 * s);
       }
     }
 
     function drawPvzPoint(b) {
       const pos = gridToScreen(b.x + 0.5, b.y + 0.5);
       const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 8 * s, 38 * s, 19 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
       ctx.fillStyle = '#512da8'; ctx.fillRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.strokeStyle = '#311b92'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.fillStyle = '#d1c4e9'; ctx.fillRect(pos.x - 18 * s, pos.y - 24 * s, 36 * s, 16 * s);
+      ctx.fillStyle = '#ffb300'; ctx.fillRect(pos.x - 6 * s, pos.y - 14 * s, 12 * s, 10 * s);
+      ctx.fillStyle = '#e040fb'; ctx.fillRect(pos.x - 20 * s, pos.y - 50 * s, 40 * s, 12 * s);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 * s; ctx.strokeRect(pos.x - 20 * s, pos.y - 50 * s, 40 * s, 12 * s);
+      ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.max(8, Math.floor(9 * s))}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.fillText('П В З', pos.x, pos.y - 41 * s);
     }
-    function drawRealisticMill(m) {
-      const pos = gridToScreen(m.x + 0.5, m.y + 0.5);
+
+    function drawRealisticMill(mill) {
+      const pos = gridToScreen(mill.x + 0.5, mill.y + 0.5);
       const s = camera.zoom;
-      ctx.fillStyle = '#546e7a'; ctx.fillRect(pos.x - 22 * s, pos.y - 28 * s, 44 * s, 28 * s);
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 12 * s, 42 * s, 22 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fill();
+      ctx.fillStyle = '#546e7a'; ctx.beginPath(); ctx.ellipse(pos.x, pos.y, 22 * s, 11 * s, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillRect(pos.x - 22 * s, pos.y - 28 * s, 44 * s, 28 * s);
+      ctx.fillStyle = '#4e342e'; ctx.fillRect(pos.x - 5 * s, pos.y - 18 * s, 10 * s, 18 * s);
+      ctx.fillStyle = '#bcaaa4'; ctx.beginPath();
+      ctx.moveTo(pos.x - 20 * s, pos.y - 28 * s); ctx.lineTo(pos.x - 14 * s, pos.y - 70 * s);
+      ctx.lineTo(pos.x + 14 * s, pos.y - 70 * s); ctx.lineTo(pos.x + 20 * s, pos.y - 28 * s);
+      ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 1.8 * s; ctx.stroke();
+      ctx.fillStyle = '#a8432a'; ctx.beginPath();
+      ctx.moveTo(pos.x - 24 * s, pos.y - 68 * s); ctx.lineTo(pos.x, pos.y - 94 * s); ctx.lineTo(pos.x + 24 * s, pos.y - 68 * s);
+      ctx.closePath(); ctx.fill();
+
+      const hubY = pos.y - 65 * s;
+      mill.bladeAngle = (mill.bladeAngle || 0) + (mill.production ? 0.08 : 0.02);
+      ctx.save(); ctx.translate(pos.x, hubY); ctx.rotate(mill.bladeAngle);
+      for (let i = 0; i < 4; i++) {
+        ctx.rotate(Math.PI / 2);
+        ctx.fillStyle = '#4e342e'; ctx.fillRect(-2 * s, 0, 4 * s, 48 * s);
+        ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 1 * s; ctx.strokeRect(2 * s, 10 * s, 14 * s, 36 * s);
+      }
+      ctx.restore();
     }
+
     function drawRedBarn(b) {
       const pos = gridToScreen(b.x + 0.5, b.y + 0.5);
       const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 8 * s, 36 * s, 18 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
       ctx.fillStyle = '#b71c1c'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
+      ctx.strokeStyle = '#7f0000'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
+      ctx.fillStyle = '#eceff1'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 4 * s, 38 * s); ctx.fillRect(pos.x + 22 * s, pos.y - 38 * s, 4 * s, 38 * s);
+      ctx.fillStyle = '#880e4f'; ctx.fillRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
+      ctx.beginPath(); ctx.moveTo(pos.x - 28 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 18 * s, pos.y - 58 * s);
+      ctx.lineTo(pos.x, pos.y - 68 * s); ctx.lineTo(pos.x + 18 * s, pos.y - 58 * s); ctx.lineTo(pos.x + 28 * s, pos.y - 38 * s);
+      ctx.closePath(); ctx.fillStyle = '#c62828'; ctx.fill();
+      ctx.fillStyle = '#78909c'; ctx.beginPath();
+      ctx.moveTo(pos.x - 30 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 19 * s, pos.y - 60 * s);
+      ctx.lineTo(pos.x, pos.y - 71 * s); ctx.lineTo(pos.x + 19 * s, pos.y - 60 * s); ctx.lineTo(pos.x + 30 * s, pos.y - 38 * s);
+      ctx.lineWidth = 3 * s; ctx.strokeStyle = '#cfd8dc'; ctx.stroke();
     }
+
     function drawCoopYard(c) {
       const pos = gridToScreen(c.x + 0.5, c.y + 0.5);
       const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 4 * s, 34 * s, 18 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fill();
       ctx.fillStyle = '#8d6e63'; ctx.fillRect(pos.x - 22 * s, pos.y - 28 * s, 26 * s, 22 * s);
+      ctx.fillStyle = '#d7a15c'; ctx.fillRect(pos.x - 20 * s, pos.y - 24 * s, 22 * s, 18 * s);
     }
+
     function drawSceneryItem(item) {
       const p = gridToScreen(item.x + 0.5, item.y + 0.5);
-      if (item.type === 'stone_path') { ctx.fillStyle = '#d7ccc8'; ctx.fillRect(p.x - 10, p.y - 5, 20, 10); }
+      const s = camera.zoom;
+      if (item.type === 'stone_path') {
+        const hw = (TILE_W / 2) * s; const hh = (TILE_H / 2) * s;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y - hh); ctx.lineTo(p.x + hw, p.y); ctx.lineTo(p.x + hh, p.y + hh); ctx.lineTo(p.x - hw, p.y); ctx.closePath();
+        ctx.fillStyle = '#d7ccc8'; ctx.fill(); ctx.strokeStyle = '#bcaaa4'; ctx.lineWidth = 1; ctx.stroke();
+      } else if (item.type === 'fence') {
+        ctx.fillStyle = '#ffb74d'; ctx.fillRect(p.x - 16 * s, p.y - 6 * s, 32 * s, 4 * s); ctx.fillRect(p.x - 16 * s, p.y - 12 * s, 32 * s, 4 * s);
+      } else if (item.type === 'cliff') {
+        ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(p.x - 18 * s, p.y); ctx.lineTo(p.x - 12 * s, p.y - 32 * s);
+        ctx.lineTo(p.x + 4 * s, p.y - 40 * s); ctx.lineTo(p.x + 18 * s, p.y - 20 * s); ctx.lineTo(p.x + 14 * s, p.y); ctx.closePath(); ctx.fill();
+      } else if (item.type === 'bush') {
+        ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(p.x, p.y - 6 * s, 10 * s, 0, Math.PI * 2); ctx.fill();
+      } else if (item.type === 'barrel') {
+        ctx.fillStyle = '#8d6e63'; ctx.fillRect(p.x - 5 * s, p.y - 12 * s, 10 * s, 12 * s);
+      } else if (item.type === 'flowers') {
+        ctx.fillStyle = '#29b6f6'; ctx.beginPath(); ctx.arc(p.x - 4 * s, p.y - 4 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+      }
     }
 
     let lastFrameTime = performance.now();
@@ -880,6 +989,8 @@
       lastFrameTime = now;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#172c0b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       for (let y = 0; y < MAP_SIZE; y++) {
         for (let x = 0; x < MAP_SIZE; x++) {
           if (scenery.some(s => s.type === 'water' && s.x === x && s.y === y)) drawWaterTile(x, y);
@@ -888,7 +999,9 @@
       }
 
       scenery.forEach(item => { if (item.type !== 'water') drawSceneryItem(item); });
-      buildings.forEach(b => {
+
+      const renderList = [...buildings].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+      renderList.forEach(b => {
         if (b.type === 'plot') drawPlot(b);
         else if (b.type === 'mill') drawRealisticMill(b);
         else if (b.type === 'red_barn') drawRedBarn(b);
@@ -902,7 +1015,7 @@
     }
     requestAnimationFrame(renderLoop);
 
-    let isDragging = false, dragStartX = 0, dragStartY = 0, didMove = false, currentPlacement = null;
+    let isDragging = false, dragStartX = 0, dragStartY = 0, didMove = false;
 
     window.addEventListener('mousedown', (e) => {
       if (e.target !== canvas) return;
@@ -921,13 +1034,11 @@
       if (!didMove) onCanvasClick(e.clientX, e.clientY);
     });
 
-    // Увеличенные хитбоксы для надежного сбора и кликов по грядкам
     function findBuildingByHitbox(clickX, clickY) {
       let nearest = null;
       let minDistance = Infinity;
       buildings.forEach(b => {
         const center = gridToScreen(b.x + 0.5, b.y + 0.5);
-        // Увеличенный радиус хитбокса (75 пикселей для легкого нажатия)
         const dist = Math.hypot(clickX - center.x, clickY - center.y);
         if (dist <= 75 * camera.zoom && dist < minDistance) {
           minDistance = dist;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Солнечная Долина — ИП Темников И Н</title>
+  <title>Солнечная долина</title>
   <style>
     * {
       box-sizing: border-box;
@@ -36,7 +36,6 @@
       pointer-events: none;
     }
 
-    /* Главное меню */
     #main-menu-screen {
       background: linear-gradient(180deg, rgba(15,35,12,0.85) 0%, rgba(8,18,6,0.98) 100%),
                   radial-gradient(circle at 50% 30%, #43a047 0%, #1b380f 100%);
@@ -110,9 +109,6 @@
       width: 80px; height: 80px; background: #ffe0b2; border-radius: 50%;
       border: 3px solid #ff9800; display: flex; align-items: center; justify-content: center;
     }
-    .tut-dots { display: flex; gap: 8px; }
-    .tut-dot { width: 10px; height: 10px; border-radius: 50%; background: #d7ccc8; transition: 0.2s; }
-    .tut-dot.active { background: #e65100; width: 24px; border-radius: 8px; }
 
     #game-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
     #game-canvas:active { cursor: grabbing; }
@@ -162,10 +158,7 @@
       align-items: center; gap: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
       font-weight: 800; font-size: 13px;
     }
-    .cancel-build-btn {
-      background: #f44336; border: none; color: #fff; padding: 4px 12px;
-      border-radius: 12px; font-weight: 900; cursor: pointer;
-    }
+    .cancel-build-btn { background: #f44336; border: none; color: #fff; padding: 4px 12px; border-radius: 12px; font-weight: 900; cursor: pointer; }
 
     .bottom-bar-left { position: absolute; bottom: 20px; left: 20px; display: flex; gap: 12px; z-index: 20; }
     .bottom-bar { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 20; }
@@ -202,7 +195,6 @@
     .bubble-item .price-row svg { width: 14px; height: 14px; }
     .bubble-item:hover { background: #ffe082; transform: scale(1.08); }
 
-    /* Модалки */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(4px); z-index: 1200; display: none;
@@ -283,7 +275,7 @@
   <!-- 1. ГЛАВНОЕ МЕНЮ -->
   <div class="screen-overlay" id="main-menu-screen">
     <div class="menu-card">
-      <div class="game-logo-title">Солнечная<br>Долина</div>
+      <div class="game-logo-title">Солнечная долина</div>
       <div style="font-size: 13px; color: #6d4c41; margin-bottom: 4px;">Облачное сохранение MongoDB на Render. Прогресс никогда не потеряется!</div>
       
       <button class="menu-btn btn-play" id="btn-start-game">
@@ -292,7 +284,7 @@
       </button>
       <button class="menu-btn btn-secondary" id="btn-menu-workers">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
-        ШТАТ И АГРОНОМЫ
+        ШТАТ, МЕНЕДЖЕРЫ И АГРОНОМЫ
       </button>
       <button class="menu-btn btn-settings" id="btn-menu-settings">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -304,31 +296,29 @@
       </button>
 
       <div class="menu-copyright">
-        © ИП Темников И Н. Все права защищены.
+        © Солнечная долина. Все права защищены.
       </div>
     </div>
   </div>
 
-  <!-- 2. ВВОД НИКА -->
   <div class="screen-overlay screen-hidden" id="nickname-screen">
     <div class="tut-card">
       <div class="tut-graphic-box">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="#ff9800"><circle cx="12" cy="8" r="5" fill="#ffa726"/><path d="M3 21v-2a6 6 0 0 1 6-6h6a6 6 0 0 1 6 6v2" fill="#fb8c00"/></svg>
       </div>
       <div class="tut-title">Представьтесь, управляющий!</div>
-      <div class="tut-desc">Введите имя руководителя для документов долины:</div>
+      <div class="tut-desc">Введите ваше имя для документов долины:</div>
       <input type="text" class="nick-input" id="nick-field" maxlength="15" placeholder="Ваш никнейм" value="Фермер">
       <button class="menu-btn btn-play" id="btn-confirm-nick" style="font-size:16px; padding:12px;">Продолжить</button>
     </div>
   </div>
 
-  <!-- 3. ТУТОРИАЛ -->
   <div class="screen-overlay screen-hidden" id="tutorial-screen">
     <div class="tut-card">
       <div class="tut-step-badge" id="tut-badge">Шаг 1 из 3</div>
       <div class="tut-graphic-box" id="tut-icon-box"></div>
-      <div class="tut-title" id="tut-title">Облачная База Данных</div>
-      <div class="tut-desc" id="tut-desc">Ваш прогресс автоматически синхронизируется с сервером на Render. Стройте ПВЗ, нанимайте Агронома Прохора и развивайте ферму!</div>
+      <div class="tut-title" id="tut-title">Мельница, Курятник и Магазин</div>
+      <div class="tut-desc" id="tut-desc">Нанимайте работника на мельницу, птичника в курятник, менеджера по продажам в магазин и агронома Прохора для управления посевами!</div>
       <div class="tut-dots">
         <div class="tut-dot active" id="tdot-0"></div>
         <div class="tut-dot" id="tdot-1"></div>
@@ -429,7 +419,7 @@
       <div class="modal-close-btn" data-close="modal-orders">✕</div>
       <div class="modal-title">📦 ПВЗ и Доставка Заказов</div>
       <div style="font-size: 12px; color: #5d4037; text-align: center; margin-bottom: 8px;">
-        Здесь формируются отправления для жителей и магазинов. Товары не залёживаются на складе!
+        Здесь формируются отправления для жителей и магазинов. Менеджер по продажам ускоряет выдачу!
       </div>
       <div class="cards-grid" id="orders-items-grid"></div>
     </div>
@@ -474,7 +464,7 @@
   <div class="modal-overlay" id="modal-workers">
     <div class="modal-box">
       <div class="modal-close-btn" data-close="modal-workers">✕</div>
-      <div class="modal-title">Штат сотрудников и Агрономы</div>
+      <div class="modal-title">Штат сотрудников, Менеджеры и Агрономы</div>
       <div class="cards-grid" id="workers-grid"></div>
     </div>
   </div>
@@ -482,19 +472,15 @@
   <div class="modal-overlay" id="modal-dev">
     <div class="modal-box">
       <div class="modal-close-btn" data-close="modal-dev">✕</div>
-      <div class="modal-title">Компания разработчик</div>
+      <div class="modal-title">О разработчике</div>
       <div style="font-size: 15px; color: #4e342e; line-height: 1.6; text-align: center; margin: 10px 0;">
-        <b>ИП Темников И Н</b><br>
-        Все права защищены.<br><br>
-        Официальная разработка браузерной изометрической стратегии «Солнечная Долина». Облачное сохранение в MongoDB на сервере Render, ПВЗ, агроном Прохор и 60 FPS графика.
+        <b>Солнечная долина</b><br><br>
+        Официальная браузерная изометрическая стратегия. Облачное сохранение в MongoDB на сервере Render, Мельница, Курятник, Магазин, Менеджер по продажам, Агроном Прохор и 60 FPS графика.
       </div>
     </div>
   </div>
 
   <script>
-    /* ==========================================================================
-       SVG ИКОНКИ
-       ========================================================================== */
     const SVG_COIN = `<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="10" fill="#ffb300" stroke="#ff8f00" stroke-width="1.8"/><circle cx="12" cy="12" r="7.5" fill="#ffca28"/><circle cx="12" cy="12" r="5.5" fill="#ffa000"/><text x="12" y="15.5" font-size="10" font-weight="900" fill="#fff" text-anchor="middle" font-family="Arial">C</text></svg>`;
     const SVG_GEM = `<svg viewBox="0 0 24 24" width="100%" height="100%"><polygon points="6,3 18,3 22,9 12,22 2,9" fill="#00e5ff" stroke="#00b0ff" stroke-width="1.5"/><polygon points="6,3 12,9 18,3" fill="#80d8ff"/><polyline points="2,9 12,22 22,9" stroke="#fff" stroke-width="1" fill="none"/></svg>`;
     const SVG_WHEAT = `<svg viewBox="0 0 36 36" width="100%" height="100%"><path d="M18 34 V12" stroke="#d49419" stroke-width="2" stroke-linecap="round"/><ellipse cx="18" cy="8" rx="2.8" ry="4.5" fill="#ffd54f" stroke="#ffb300" stroke-width="0.8"/><ellipse cx="15" cy="12" rx="2.5" ry="4" fill="#ffca28" stroke="#ff9800" stroke-width="0.8" transform="rotate(-18 15 12)"/><ellipse cx="21" cy="12" rx="2.5" ry="4" fill="#ffca28" stroke="#ff9800" stroke-width="0.8" transform="rotate(18 21 12)"/></svg>`;
@@ -613,7 +599,7 @@
       mill:           { category: 'production', name: 'Каменная Мельница', cost: 280, desc: 'Помол колосьев в белую муку.' },
       coop_yard:      { category: 'production', name: 'Курятник с выгулом', cost: 200, desc: 'Производит свежие домашние яйца.' },
       pvz_point:      { category: 'commerce',   name: 'Пункт выдачи (ПВЗ)', cost: 320, desc: 'ПВЗ для выдачи заказов клиентам с быстрой отгрузкой!' },
-      market_shop:    { category: 'commerce',   name: 'Магазин-Универмаг', cost: 350, desc: 'Автоматически отгружает товары через грузчиков!' },
+      market_shop:    { category: 'commerce',   name: 'Магазин-Универмаг', cost: 350, desc: 'Магазин с менеджером по продажам!' },
       red_barn:       { category: 'commerce',   name: 'Большой Красный Амбар', cost: 450, desc: '+40 единиц к вместимости склада.' },
       plot:           { category: 'infra',      name: 'Грядка', cost: 40, desc: 'Для посадки культур долины.' },
       stone_path:     { category: 'infra',      name: 'Каменная дорожка', cost: 10, desc: 'Тропинка для персонала.' },
@@ -626,7 +612,10 @@
       builder:    { id: 'builder', name: 'Кузьма (Строитель)', role: 'Расширение полей', desc: 'Копает новые грядки рядом с полями.', cost: 300, shirtColor: '#795548', hatColor: '#ff9800' },
       planter:    { id: 'planter', name: 'Митя (Садовод)', role: 'Посев семян', desc: 'Засевает пустые грядки по подсказкам агронома.', cost: 220, shirtColor: '#66bb6a', hatColor: '#fbc02d' },
       harvester:  { id: 'harvester', name: 'Ваня (Жнец)', role: 'Сбор урожая', desc: 'Собирает все спелые культуры прямо в амбар.', cost: 180, shirtColor: '#42a5f5', hatColor: '#fbc02d' },
-      loader:     { id: 'loader', name: 'Борис (Грузчик)', role: 'Разгрузка склада', desc: 'Носит товары в ПВЗ при переполнении.', cost: 250, shirtColor: '#ff7043', hatColor: '#d32f2f' },
+      miller_w:   { id: 'miller_w', name: 'Анна (Мельник)', role: 'Работа на мельнице', desc: 'Непрерывно перемалывает пшеницу в муку.', cost: 240, shirtColor: '#ab47bc', hatColor: '#fbc02d' },
+      coop_w:     { id: 'coop_w', name: 'Дарья (Птичник)', role: 'Работа в курятнике', desc: 'Кормит птиц и собирает свежие яйца.', cost: 230, shirtColor: '#e91e63', hatColor: '#fff59d' },
+      salesman:   { id: 'salesman', name: 'Аркадий (Менеджер)', role: 'Продажи в магазине', desc: 'Управляет магазином и ускоряет сбыт излишков.', cost: 290, shirtColor: '#0288d1', hatColor: '#ffffff' },
+      loader:     { id: 'loader', name: 'Борис (Грузчик)', role: 'Разгрузка склада', desc: 'Носит товары в ПВЗ и магазин при переполнении.', cost: 250, shirtColor: '#ff7043', hatColor: '#d32f2f' },
       driver:     { id: 'driver', name: 'Илья (Водитель)', role: 'Авто-отгрузка', desc: 'Развозит заказы из ПВЗ в город.', cost: 320, shirtColor: '#3f51b5', hatColor: '#263238' }
     };
 
@@ -667,6 +656,7 @@
       { id: 'b_mill', type: 'mill', x: 8, y: 3, production: null, endTime: 0, bladeAngle: 0 },
       { id: 'b_barn_build', type: 'red_barn', x: 8, y: 6 },
       { id: 'b_coop', type: 'coop_yard', x: 3, y: 8, production: null, endTime: 0 },
+      { id: 'b_shop', type: 'market_shop', x: 7, y: 8 },
       { id: 'b_pvz', type: 'pvz_point', x: 9, y: 8 }
     ];
 
@@ -808,6 +798,39 @@
               }
             }
           } else { w.isMoving = false; }
+        } else if (w.role === 'miller_w') {
+          const mill = buildings.find(b => b.type === 'mill');
+          if (mill && !mill.production && (gameState.inventory.wheat || 0) >= 2) {
+            gameState.inventory.wheat -= 2;
+            mill.production = 'flour';
+            mill.endTime = now + PRODUCTS.flour.time * 1000;
+            updateUI(); saveGameData();
+          } else if (mill && mill.production && now >= mill.endTime) {
+            if (addToBarn('flour', 1)) { mill.production = null; saveGameData(); }
+          }
+        } else if (w.role === 'coop_w') {
+          const coop = buildings.find(b => b.type === 'coop_yard');
+          if (coop && !coop.production && (gameState.inventory.wheat || 0) >= 1) {
+            gameState.inventory.wheat -= 1;
+            coop.production = 'egg';
+            coop.endTime = now + PRODUCTS.egg.time * 1000;
+            updateUI(); saveGameData();
+          } else if (coop && coop.production && now >= coop.endTime) {
+            if (addToBarn('egg', 2)) { coop.production = null; saveGameData(); }
+          }
+        } else if (w.role === 'salesman') {
+          if (!w.lastAction || now - w.lastAction > 5000) {
+            w.lastAction = now;
+            if (getBarnCount() > gameState.barnMax * 0.5) {
+              for (const k in gameState.inventory) {
+                if (gameState.inventory[k] >= 3) {
+                  sellItem(k, 3);
+                  showToast(`Менеджер Аркадий выгодно продал 3 шт. ${CROPS[k] ? CROPS[k].name : k}!`);
+                  break;
+                }
+              }
+            }
+          }
         }
       });
     }
@@ -849,42 +872,6 @@
       if (elapsed >= crop.growTime) plot.ready = true;
       const center = gridToScreen(plot.x + 0.5, plot.y + 0.5);
 
-      if (plot.crop === 'wheat') {
-        if (!plot.ready) {
-          ctx.strokeStyle = '#7cb342'; ctx.lineWidth = 1.6 * s; ctx.beginPath();
-          ctx.moveTo(center.x, center.y); ctx.lineTo(center.x, center.y - 12 * s); ctx.stroke();
-        } else {
-          for (let r = -2; r <= 2; r++) {
-            for (let c = -2; c <= 2; c++) {
-              const ox = (c - r) * 7 * s; const oy = (c + r) * 3.5 * s;
-              ctx.strokeStyle = '#c58411'; ctx.lineWidth = 1.2 * s; ctx.beginPath();
-              ctx.moveTo(center.x + ox, center.y + oy); ctx.lineTo(center.x + ox, center.y + oy - 18 * s); ctx.stroke();
-              ctx.fillStyle = '#fbc02d'; ctx.beginPath();
-              ctx.ellipse(center.x + ox, center.y + oy - 22 * s, 2.4 * s, 5.5 * s, 0, 0, Math.PI * 2); ctx.fill();
-            }
-          }
-        }
-      } else if (plot.crop === 'beetroot') {
-        ctx.fillStyle = '#880e4f'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 7 * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#8bc34a'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 20 * s, 6 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
-      } else if (plot.crop === 'corn') {
-        ctx.fillStyle = '#33691e'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 4 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
-        if (plot.ready) {
-          ctx.fillStyle = '#fdd835'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 22 * s, 5.5 * s, 11 * s, 0, 0, Math.PI * 2); ctx.fill();
-        }
-      } else if (plot.crop === 'strawberry') {
-        ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.arc(center.x, center.y - 6 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
-        if (plot.ready) {
-          ctx.fillStyle = '#e53935'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 10 * s, 5 * s, 7 * s, 0, 0, Math.PI * 2); ctx.fill();
-        }
-      } else if (plot.crop === 'pumpkin') {
-        ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 2 * s, 12 * s, 6 * s, 0, 0, Math.PI * 2); ctx.fill();
-        if (plot.ready) {
-          ctx.fillStyle = '#f57c00'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 12 * s, 9 * s, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#ffa726'; ctx.beginPath(); ctx.ellipse(center.x, center.y - 12 * s, 6 * s, 9.5 * s, 0, 0, Math.PI * 2); ctx.fill();
-        }
-      }
-
       if (plot.ready) {
         const bounce = Math.sin(Date.now() / 180) * 4 * s;
         ctx.fillStyle = '#ff9800'; ctx.fillRect(center.x - 9 * s, center.y - 36 * s + bounce, 18 * s, 11 * s);
@@ -905,6 +892,18 @@
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 * s; ctx.strokeRect(pos.x - 20 * s, pos.y - 50 * s, 40 * s, 12 * s);
       ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.max(8, Math.floor(9 * s))}px sans-serif`;
       ctx.textAlign = 'center'; ctx.fillText('П В З', pos.x, pos.y - 41 * s);
+    }
+
+    function drawMarketShop(b) {
+      const pos = gridToScreen(b.x + 0.5, b.y + 0.5);
+      const s = camera.zoom;
+      ctx.beginPath(); ctx.ellipse(pos.x, pos.y + 8 * s, 38 * s, 19 * s, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
+      ctx.fillStyle = '#0288d1'; ctx.fillRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.strokeStyle = '#01579b'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 36 * s, 52 * s, 36 * s);
+      ctx.fillStyle = '#fff9c4'; ctx.fillRect(pos.x - 18 * s, pos.y - 54 * s, 36 * s, 11 * s);
+      ctx.fillStyle = '#e65100'; ctx.font = `900 ${Math.max(8, Math.floor(9 * s))}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.fillText('МАГАЗИН', pos.x, pos.y - 45 * s);
     }
 
     function drawRealisticMill(mill) {
@@ -941,16 +940,10 @@
       ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
       ctx.fillStyle = '#b71c1c'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
       ctx.strokeStyle = '#7f0000'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 26 * s, pos.y - 38 * s, 52 * s, 38 * s);
-      ctx.fillStyle = '#eceff1'; ctx.fillRect(pos.x - 26 * s, pos.y - 38 * s, 4 * s, 38 * s); ctx.fillRect(pos.x + 22 * s, pos.y - 38 * s, 4 * s, 38 * s);
       ctx.fillStyle = '#880e4f'; ctx.fillRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * s; ctx.strokeRect(pos.x - 14 * s, pos.y - 28 * s, 28 * s, 28 * s);
       ctx.beginPath(); ctx.moveTo(pos.x - 28 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 18 * s, pos.y - 58 * s);
       ctx.lineTo(pos.x, pos.y - 68 * s); ctx.lineTo(pos.x + 18 * s, pos.y - 58 * s); ctx.lineTo(pos.x + 28 * s, pos.y - 38 * s);
       ctx.closePath(); ctx.fillStyle = '#c62828'; ctx.fill();
-      ctx.fillStyle = '#78909c'; ctx.beginPath();
-      ctx.moveTo(pos.x - 30 * s, pos.y - 38 * s); ctx.lineTo(pos.x - 19 * s, pos.y - 60 * s);
-      ctx.lineTo(pos.x, pos.y - 71 * s); ctx.lineTo(pos.x + 19 * s, pos.y - 60 * s); ctx.lineTo(pos.x + 30 * s, pos.y - 38 * s);
-      ctx.lineWidth = 3 * s; ctx.strokeStyle = '#cfd8dc'; ctx.stroke();
     }
 
     function drawCoopYard(c) {
@@ -1006,6 +999,7 @@
         else if (b.type === 'mill') drawRealisticMill(b);
         else if (b.type === 'red_barn') drawRedBarn(b);
         else if (b.type === 'coop_yard') drawCoopYard(b);
+        else if (b.type === 'market_shop') drawMarketShop(b);
         else if (b.type === 'pvz_point') drawPvzPoint(b);
       });
 
@@ -1075,10 +1069,50 @@
           const left = Math.ceil(crop.growTime - (Date.now() - clicked.plantTime) / 1000);
           showToast(`⏳ ${crop.name} созреет через ${left} сек.`);
         }
+      } else if (clicked.type === 'mill') {
+        if (clicked.production && Date.now() >= clicked.endTime) {
+          if (addToBarn('flour', 1)) {
+            addXP(PRODUCTS.flour.xp);
+            audioSys.playPop();
+            showToast('Мука перемещена в амбар!');
+            clicked.production = null;
+            saveGameData();
+          }
+        } else if (!clicked.production) {
+          const has = gameState.inventory.wheat || 0;
+          let html = `
+            <div class="bubble-item" onclick="startMill('${clicked.id}')">
+              <div class="crop-preview">${SVG_FLOUR}</div>
+              <span>Мука (${has}/2)</span>
+              <span style="color:#2e7d32; font-weight:800; font-size:10px;">10 сек</span>
+            </div>
+          `;
+          showRadialBubble(scr, html);
+        }
       } else if (clicked.type === 'red_barn') {
         document.getElementById('btn-open-barn').click();
-      } else if (clicked.type === 'pvz_point') {
+      } else if (clicked.type === 'pvz_point' || clicked.type === 'market_shop') {
         document.getElementById('btn-open-orders').click();
+      } else if (clicked.type === 'coop_yard') {
+        if (clicked.production && Date.now() >= clicked.endTime) {
+          if (addToBarn('egg', 2)) {
+            addXP(PRODUCTS.egg.xp);
+            audioSys.playPop();
+            showToast('Собрано 2 свежих яйца!');
+            clicked.production = null;
+            saveGameData();
+          }
+        } else if (!clicked.production) {
+          const has = gameState.inventory.wheat || 0;
+          let html = `
+            <div class="bubble-item" onclick="startCoop('${clicked.id}')">
+              <div class="crop-preview">${SVG_WHEAT}</div>
+              <span>Корм (${has}/1)</span>
+              <span style="color:#2e7d32; font-weight:800; font-size:10px;">15 сек</span>
+            </div>
+          `;
+          showRadialBubble(scr, html);
+        }
       }
     }
 
@@ -1111,6 +1145,24 @@
         saveGameData();
       }
     }
+
+    window.startMill = function(id) {
+      hideRadialBubble();
+      const m = buildings.find(b => b.id === id);
+      if ((gameState.inventory.wheat || 0) < 2) { showToast('Нужно 2 пшеницы!'); return; }
+      gameState.inventory.wheat -= 2;
+      m.production = 'flour'; m.endTime = Date.now() + PRODUCTS.flour.time * 1000;
+      audioSys.playPop(); updateUI(); saveGameData();
+    };
+
+    window.startCoop = function(id) {
+      hideRadialBubble();
+      const c = buildings.find(b => b.id === id);
+      if ((gameState.inventory.wheat || 0) < 1) { showToast('Нужно 1 зерно для корма!'); return; }
+      gameState.inventory.wheat -= 1;
+      c.production = 'egg'; c.endTime = Date.now() + PRODUCTS.egg.time * 1000;
+      audioSys.playPop(); updateUI(); saveGameData();
+    };
 
     let isGameStarted = false;
     function togglePauseMenu() {
